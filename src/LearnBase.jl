@@ -7,22 +7,41 @@ of how such a result was produced, nor the ability to
 produce such a result by itself.
 """
 abstract Loss
+abstract ParameterLoss <: Loss
+abstract ModelLoss <: Loss
+abstract MarginLoss <: ModelLoss
+abstract DistanceLoss <: ModelLoss
 
 function value end
 function value! end
 function deriv end
+function deriv2 end
 function deriv! end
+function value_deriv end
 function grad end
 function grad! end
+function addgrad! end
+function value_grad end
+function value_grad! end
+function prox end
+function prox! end
 
-# following functions better placed in MLModels ?
-
-# function value_deriv end
-# function addgrad! end
-# function value_grad end
-# function value_grad! end
-# function prox end
-# function prox! end
+function isminimizable end
+function isdifferentiable end
+function istwicedifferentiable end
+function isconvex end
+function isstronglyconvex end
+function isnemitski end
+function isunivfishercons end
+function isfishercons end
+function islipschitzcont end
+function islocallylipschitzcont end
+function islipschitzcont_deriv end
+function isclipable end
+function ismarginbased end
+function isclasscalibrated end
+function isdistancebased end
+function issymmetric end
 
 """
 Anything that takes an input and performs some kind
