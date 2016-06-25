@@ -14,6 +14,10 @@ abstract DistanceLoss <: ModelLoss
 
 function value end
 function value! end
+function meanvalue end
+function sumvalue end
+function meanderiv end
+function sumderiv end
 function deriv end
 function deriv2 end
 function deriv! end
@@ -70,5 +74,55 @@ function update end
 function update! end
 function train end
 function train! end
+
+export
+
+    # Types
+    Loss,
+        ModelLoss,
+            MarginLoss,
+            DistanceLoss,
+        ParameterLoss,
+
+    Transformation,
+
+    Minimizeable,
+
+    Optimizer,
+
+    # Functions
+    value,
+    value!,
+    meanvalue,
+    sumvalue,
+    meanderiv,
+    sumderiv,
+    deriv,
+    deriv!,
+    grad,
+    grad!,
+    addgrad!,
+    deriv2,
+    value_deriv,
+    value_deriv!,
+    value_grad,
+    value_grad!,
+
+    isminimizable,
+    isdifferentiable,
+    istwicedifferentiable,
+    isconvex,
+    isstronglyconvex,
+    isnemitski,
+    isunivfishercons,
+    isfishercons,
+    islipschitzcont,
+    islocallylipschitzcont,
+    islipschitzcont_deriv,
+    isclipable,
+    ismarginbased,
+    isclasscalibrated,
+    isdistancebased,
+    issymmetric
 
 end # module
