@@ -51,6 +51,7 @@ of function to produce an output. For example a linear
 prediction function.
 """
 abstract Transformation
+abstract StochasticTransformation <: Transformation
 
 function transform end
 function transform! end
@@ -85,6 +86,7 @@ export
         Penalty,
 
     Transformation,
+        StochasticTransformation,
 
     Minimizeable,
 
