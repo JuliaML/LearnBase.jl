@@ -1,16 +1,14 @@
 module LearnBase
 
-"""
-Baseclass for all losses, which are just functions
-evaluating the quality of a result, with neither the knowledge
-of how such a result was produced, nor the ability to
-produce such a result by itself.
-"""
-abstract Loss
-abstract ParameterLoss <: Loss
-abstract ModelLoss <: Loss
-abstract MarginLoss <: ModelLoss
-abstract DistanceLoss <: ModelLoss
+abstract Cost
+
+abstract Loss <: Cost
+abstract SupervisedLoss <: Loss
+abstract MarginLoss <: SupervisedLoss
+abstract DistanceLoss <: SupervisedLoss
+abstract UnsupervisedLoss <: Loss
+
+abstract Penalty <: Cost
 
 function value end
 function value! end
@@ -78,11 +76,13 @@ function train! end
 export
 
     # Types
-    Loss,
-        ModelLoss,
-            MarginLoss,
-            DistanceLoss,
-        ParameterLoss,
+    Cost,
+        Loss,
+            SupervisedLoss,
+                MarginLoss,
+                DistanceLoss,
+            UnsupervisedLoss,
+        Penalty,
 
     Transformation,
 
