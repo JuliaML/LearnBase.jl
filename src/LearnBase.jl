@@ -71,8 +71,8 @@ abstract Optimizer
 
 function update end
 function update! end
-function train end
-function train! end
+function learn end
+function learn! end
 
 export
 
@@ -93,6 +93,10 @@ export
     Optimizer,
 
     # Functions
+    learn,
+    learn!,
+    transform,
+    transform!,
     value,
     value!,
     meanvalue,
