@@ -51,6 +51,7 @@ of function to produce an output. For example a linear
 prediction function.
 """
 abstract Transformation
+abstract StochasticTransformation <: Transformation
 
 function transform end
 function transform! end
@@ -70,8 +71,8 @@ abstract Optimizer
 
 function update end
 function update! end
-function train end
-function train! end
+function learn end
+function learn! end
 
 export
 
@@ -85,12 +86,17 @@ export
         Penalty,
 
     Transformation,
+        StochasticTransformation,
 
     Minimizeable,
 
     Optimizer,
 
     # Functions
+    learn,
+    learn!,
+    transform,
+    transform!,
     value,
     value!,
     meanvalue,
