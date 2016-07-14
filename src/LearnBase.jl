@@ -113,6 +113,8 @@ export
     value_deriv!,
     value_grad,
     value_grad!,
+    prox,
+    prox!,
 
     isminimizable,
     isdifferentiable,
