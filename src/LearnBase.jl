@@ -95,6 +95,8 @@ export
     # Functions
     learn,
     learn!,
+    update,
+    update!,
     transform,
     transform!,
     value,
