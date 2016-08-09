@@ -43,7 +43,6 @@ function isclipable end
 function ismarginbased end
 function isclasscalibrated end
 function isdistancebased end
-function issymmetric end
 
 """
 Anything that takes an input and performs some kind
@@ -132,7 +131,6 @@ export
     isclipable,
     ismarginbased,
     isclasscalibrated,
-    isdistancebased,
-    issymmetric
+    isdistancebased
 
 end # module
