@@ -1,5 +1,16 @@
 module LearnBase
 
+# Only reexport required functions by default
+import StatsBase: nobs, fit, fit!
+
+# We temporary reexport issymmetric for smooth
+# transition into 0.5
+if VERSION >= v"0.5-"
+    import Base.issymmetric
+else
+    const issymmetric = Base.issym
+end
+
 abstract Cost
 
 abstract Loss <: Cost
@@ -62,6 +73,9 @@ information needed to compute its own current loss.
 """
 abstract Minimizeable <: Transformation
 
+function getobs end
+function getobs! end
+
 """
 An algorithm capable of mutating a `Minimizable` in
 such a way that its `value` is minimal
@@ -92,6 +106,9 @@ export
     Optimizer,
 
     # Functions
+    getobs,
+    getobs!,
+
     learn,
     learn!,
     update,
@@ -131,6 +148,14 @@ export
     isclipable,
     ismarginbased,
     isclasscalibrated,
-    isdistancebased
+    isdistancebased,
+
+    # Base
+    issymmetric,
+
+    # StatsBase
+    fit,
+    fit!,
+    nobs
 
 end # module
