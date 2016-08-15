@@ -11,12 +11,48 @@ else
     const issymmetric = Base.issym
 end
 
+"""
+Baseclass for any kind of cost. Notable examples for
+costs are `Loss` and `Penalty`.
+"""
 abstract Cost
 
+"""
+Baseclass for all losses. A loss is a some (possibly simplified)
+function `L(features, targets, outputs)`, where `outputs` is the
+result of some function `f(features)`.
+"""
 abstract Loss <: Cost
+
+"""
+A loss is considered supervised if all the information needed
+to compute `L(features, targets, outputs)` it are contained in
+`targets` and `outputs`, thus allowing for the simplification
+`L(targets, outputs)`.
+"""
 abstract SupervisedLoss <: Loss
+
+"""
+A supervised loss, where the targets are in {-1, 1}, and which
+can be simplified to `L(targets, outputs) = L(targets * outputs)`
+is considered **margin-based**.
+"""
 abstract MarginLoss <: SupervisedLoss
+
+
+"""
+A supervised loss that can be simplified to
+`L(targets, outputs) = L(targets - outputs)` is considered
+distance-based.
+"""
 abstract DistanceLoss <: SupervisedLoss
+
+"""
+A loss is considered usupervised if all the information needed
+to compute `L(features, targets, outputs)` it are contained in
+`features` and `outputs`, thus allowing for the simplification
+`L(features, outputs)`.
+"""
 abstract UnsupervisedLoss <: Loss
 
 abstract Penalty <: Cost
@@ -77,8 +113,8 @@ function getobs end
 function getobs! end
 
 """
-An algorithm capable of mutating a `Minimizable` in
-such a way that its `value` is minimal
+An algorithm capable of mutating a `Minimizable` in such
+a way that its `value` becomes close to locally minimal
 """
 abstract Optimizer
 
@@ -159,3 +195,4 @@ export
     nobs
 
 end # module
+
