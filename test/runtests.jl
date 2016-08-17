@@ -10,6 +10,10 @@ using Base.Test
 @test MarginLoss <: SupervisedLoss
 @test DistanceLoss <: SupervisedLoss
 
+@test Minimizeable <: Any
+@test Transformation <: Any
+@test StochasticTransformation <: Transformation
+
 # Test if functions are exported properly
 @test typeof(transform) <: Function
 @test typeof(transform!) <: Function

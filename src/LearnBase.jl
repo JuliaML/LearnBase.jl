@@ -112,12 +112,6 @@ abstract Minimizeable <: Transformation
 function getobs end
 function getobs! end
 
-"""
-An algorithm capable of mutating a `Minimizable` in such
-a way that its `value` becomes close to locally minimal
-"""
-abstract Optimizer
-
 function update end
 function update! end
 function learn end
@@ -138,8 +132,6 @@ export
         StochasticTransformation,
 
     Minimizeable,
-
-    Optimizer,
 
     # Functions
     getobs,
