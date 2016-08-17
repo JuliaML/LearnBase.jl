@@ -91,11 +91,13 @@ let s = IntervalSet(-1,1)
         @test typeof(x) == Float64
         @test x in s
     end
+    # @show s LearnBase.randtype(s)
 end
 let s = IntervalSet(-1,1.0)
     @test typeof(s) == IntervalSet{Float64}
     @test typeof(s) <: AbstractSet
     @test 1 in s
+    # @show s LearnBase.randtype(s)
 end
  
 # DiscreteSet
@@ -119,12 +121,14 @@ let s = DiscreteSet([-1,1])
         @test typeof(x) == Int
         @test x in s
     end
+    # @show s LearnBase.randtype(s)
 end
 let s = DiscreteSet([-1,1.0])
     @test typeof(s) == DiscreteSet{Vector{Float64}}
     @test typeof(s) <: AbstractSet
     @test typeof(rand(s)) == Float64
     @test typeof(rand(s, 2)) == Vector{Float64}
+    # @show s LearnBase.randtype(s)
 end
 
 # TupleSet
@@ -137,10 +141,11 @@ let s = TupleSet(IntervalSet(0,1), DiscreteSet([0,1]))
     for x in ([0,0.5], [-1,0])
         @test !(x in s)
     end
-    @test typeof(rand(s)) == Vector{Real}
-    @test typeof(rand(s, 2)) == Vector{Vector{Real}}
+    @test typeof(rand(s)) == Vector{Float64}
+    @test typeof(rand(s, 2)) == Vector{Vector{Float64}}
     @test typeof(rand(s, Tuple)) == Tuple{Float64,Int}
     @test typeof(rand(s, Tuple, 2)) == Vector{Tuple{Float64,Int}}
+    # @show s LearnBase.randtype(s)
 end
 
 # arrays of sets
@@ -152,7 +157,8 @@ let s = [IntervalSet(0,1), DiscreteSet([0,1])]
     for x in ([0,0.5], [-1,0])
         @test !(x in s)
     end
-    @test typeof(rand(s)) == Vector{Real}
-    @test typeof(rand(s, 2)) == Vector{Vector{Real}}
+    @test typeof(rand(s)) == Vector{Float64}
+    @test typeof(rand(s, 2)) == Vector{Vector{Float64}}
+    # @show s LearnBase.randtype(s)
 end
 

@@ -133,14 +133,16 @@ function IntervalSet{A<:Number,B<:Number}(lo::A, hi::B)
     T = promote_type(A,B)
     IntervalSet{T}(convert(T,lo), convert(T,hi))
 end
+randtype(s::IntervalSet) = Float64
 Base.rand{T<:Number}(s::IntervalSet{T}, dims::Integer...) = rand(dims...) * (s.hi - s.lo) + s.lo
 Base.in{T<:Number}(x::Number, s::IntervalSet{T}) = s.lo <= x <= s.hi
 
 
 "Set of discrete items"
-immutable DiscreteSet{T} <: AbstractSet
+immutable DiscreteSet{T<:AbstractArray} <: AbstractSet
     items::T
 end
+randtype(s::DiscreteSet) = eltype(s.items)
 Base.rand(s::DiscreteSet, dims::Integer...) = rand(s.items, dims...)
 Base.in(x, s::DiscreteSet) = x in s.items
 Base.length(s::DiscreteSet) = length(s.items)
@@ -148,9 +150,10 @@ Base.getindex(s::DiscreteSet, i::Int) = s.items[i]
 
 
 # operations on arrays of sets
-Base.rand{S<:AbstractSet}(sets::AbstractArray{S}) = map(rand, sets)
+randtype{S<:AbstractSet,N}(sets::AbstractArray{S,N}) = Array{promote_type(map(randtype, sets)...), N}
+Base.rand{S<:AbstractSet}(sets::AbstractArray{S}) = eltype(randtype(sets))[rand(s) for s in sets]
 function Base.rand{S<:AbstractSet}(sets::AbstractArray{S}, dim1::Integer, dims::Integer...)
-    A = Array(typeof(rand(sets)), dim1, dims...)
+    A = Array(randtype(sets), dim1, dims...)
     for i in eachindex(A)
         A[i] = rand(sets)
     end
@@ -168,17 +171,20 @@ end
 TupleSet(sets::AbstractSet...) = TupleSet(sets)
 
 # rand can return arrays or tuples, but defaults to arrays
-Base.rand(sets::TupleSet, ::Type{Vector}) = [rand(s) for s in sets.sets]
+randtype(sets::TupleSet, ::Type{Vector}) = Vector{promote_type(map(randtype, sets.sets)...)}
+Base.rand(sets::TupleSet, ::Type{Vector}) = eltype(randtype(sets, Vector))[rand(s) for s in sets.sets]
+randtype(sets::TupleSet, ::Type{Tuple}) = Tuple{map(randtype, sets.sets)...}
 Base.rand(sets::TupleSet, ::Type{Tuple}) = map(rand, sets.sets)
-function Base.rand{T}(sets::TupleSet, ::Type{T}, dim1::Integer, dims::Integer...)
-    A = Array(typeof(rand(sets, T)), dim1, dims...)
+function Base.rand{OT}(sets::TupleSet, ::Type{OT}, dim1::Integer, dims::Integer...)
+    A = Array(randtype(sets, OT), dim1, dims...)
     for i in eachindex(A)
-        A[i] = rand(sets, T)
+        A[i] = rand(sets, OT)
     end
     A
 end
-Base.rand(sets::TupleSet, dims::Integer...) = rand(sets, Vector, dims...)
 
+randtype(sets::TupleSet) = randtype(sets, Vector)
+Base.rand(sets::TupleSet, dims::Integer...) = rand(sets, Vector, dims...)
 Base.in(x, sets::TupleSet) = all(map(in, x, sets.sets))
 
 "Returns an AbstractSet representing valid input values"
