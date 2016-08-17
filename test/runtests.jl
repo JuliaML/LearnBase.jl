@@ -72,85 +72,87 @@ using StatsBase
 
 # IntervalSet
 let s = IntervalSet(-1,1)
-	@test typeof(s) == IntervalSet{Int}
-	@test typeof(s) <: AbstractSet
-	for x in (-1,0,0.5,1,1.0)
-		@test x in s
-	end
-	for x in (-1-1e-10, 1+1e-10, -Inf, Inf, 2, NaN)
-		@test !(x in s)
-	end
-	for i=1:10
-		x = rand(s)
-		@test typeof(x) == Float64
-		@test x in s
-	end
-	xs = rand(s, 10)
-	@test typeof(xs) == Vector{Float64}
-	for x in xs
-		@test typeof(x) == Float64
-		@test x in s
-	end
+    @test typeof(s) == IntervalSet{Int}
+    @test typeof(s) <: AbstractSet
+    for x in (-1,0,0.5,1,1.0)
+        @test x in s
+    end
+    for x in (-1-1e-10, 1+1e-10, -Inf, Inf, 2, NaN)
+        @test !(x in s)
+    end
+    for i=1:10
+        x = rand(s)
+        @test typeof(x) == Float64
+        @test x in s
+    end
+    xs = rand(s, 10)
+    @test typeof(xs) == Vector{Float64}
+    for x in xs
+        @test typeof(x) == Float64
+        @test x in s
+    end
 end
 let s = IntervalSet(-1,1.0)
-	@test typeof(s) == IntervalSet{Float64}
-	@test typeof(s) <: AbstractSet
-	@test 1 in s
+    @test typeof(s) == IntervalSet{Float64}
+    @test typeof(s) <: AbstractSet
+    @test 1 in s
 end
  
 # DiscreteSet
 let s = DiscreteSet([-1,1])
-	@test typeof(s) == DiscreteSet{Vector{Int}}
-	@test typeof(s) <: AbstractSet
-	for x in (-1, 1, -1.0, 1.0)
-		@test x in s
-	end
-	for x in (0, Inf, -Inf, NaN)
-		@test !(x in s)
-	end
-	for i=1:10
-		x = rand(s)
-		@test typeof(x) == Int
-		@test x in s
-	end
-	xs = rand(s, 10)
-	@test typeof(xs) == Vector{Int}
-	for x in xs
-		@test typeof(x) == Int
-		@test x in s
-	end
+    @test typeof(s) == DiscreteSet{Vector{Int}}
+    @test typeof(s) <: AbstractSet
+    for x in (-1, 1, -1.0, 1.0)
+        @test x in s
+    end
+    for x in (0, Inf, -Inf, NaN)
+        @test !(x in s)
+    end
+    for i=1:10
+        x = rand(s)
+        @test typeof(x) == Int
+        @test x in s
+    end
+    xs = rand(s, 10)
+    @test typeof(xs) == Vector{Int}
+    for x in xs
+        @test typeof(x) == Int
+        @test x in s
+    end
 end
 let s = DiscreteSet([-1,1.0])
-	@test typeof(s) == DiscreteSet{Vector{Float64}}
-	@test typeof(s) <: AbstractSet
-	@test typeof(rand(s)) == Float64
-	@test typeof(rand(s,2)) == Vector{Float64}
+    @test typeof(s) == DiscreteSet{Vector{Float64}}
+    @test typeof(s) <: AbstractSet
+    @test typeof(rand(s)) == Float64
+    @test typeof(rand(s, 2)) == Vector{Float64}
 end
 
 # TupleSet
 let s = TupleSet(IntervalSet(0,1), DiscreteSet([0,1]))
-	@test typeof(s) == TupleSet{Tuple{IntervalSet{Int}, DiscreteSet{Vector{Int}}}}
-	@test typeof(s) <: AbstractSet
-	for x in ([0,0], [0.0,0.0], [0.5,1.0])
-		@test x in s
-	end
-	for x in ([0,0.5], [-1,0])
-		@test !(x in s)
-	end
-	@test typeof(rand(s)) == Vector{Real}
-	@test typeof(rand(s,2)) == Vector{Vector{Real}}
+    @test typeof(s) == TupleSet{Tuple{IntervalSet{Int}, DiscreteSet{Vector{Int}}}}
+    @test typeof(s) <: AbstractSet
+    for x in ([0,0], [0.0,0.0], [0.5,1.0])
+        @test x in s
+    end
+    for x in ([0,0.5], [-1,0])
+        @test !(x in s)
+    end
+    @test typeof(rand(s)) == Vector{Real}
+    @test typeof(rand(s, 2)) == Vector{Vector{Real}}
+    @test typeof(rand(s, Tuple)) == Tuple{Float64,Int}
+    @test typeof(rand(s, Tuple, 2)) == Vector{Tuple{Float64,Int}}
 end
 
 # arrays of sets
 let s = [IntervalSet(0,1), DiscreteSet([0,1])]
-	@test typeof(s) == Vector{AbstractSet}
-	for x in ([0,0], [0.0,0.0], [0.5,1.0])
-		@test x in s
-	end
-	for x in ([0,0.5], [-1,0])
-		@test !(x in s)
-	end
-	@test typeof(rand(s)) == Vector{Real}
-	@test typeof(rand(s,2)) == Vector{Vector{Real}}
+    @test typeof(s) == Vector{AbstractSet}
+    for x in ([0,0], [0.0,0.0], [0.5,1.0])
+        @test x in s
+    end
+    for x in ([0,0.5], [-1,0])
+        @test !(x in s)
+    end
+    @test typeof(rand(s)) == Vector{Real}
+    @test typeof(rand(s, 2)) == Vector{Vector{Real}}
 end
 

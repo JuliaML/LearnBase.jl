@@ -166,14 +166,19 @@ immutable TupleSet{T<:Tuple} <: AbstractSet
     sets::T
 end
 TupleSet(sets::AbstractSet...) = TupleSet(sets)
-Base.rand(sets::TupleSet) = [rand(s) for s in sets.sets]
-function Base.rand(sets::TupleSet, dim1::Integer, dims::Integer...)
-    A = Array(typeof(rand(sets)), dim1, dims...)
+
+# rand can return arrays or tuples, but defaults to arrays
+Base.rand(sets::TupleSet, ::Type{Vector}) = [rand(s) for s in sets.sets]
+Base.rand(sets::TupleSet, ::Type{Tuple}) = map(rand, sets.sets)
+function Base.rand{T}(sets::TupleSet, ::Type{T}, dim1::Integer, dims::Integer...)
+    A = Array(typeof(rand(sets, T)), dim1, dims...)
     for i in eachindex(A)
-        A[i] = rand(sets)
+        A[i] = rand(sets, T)
     end
     A
 end
+Base.rand(sets::TupleSet, dims::Integer...) = rand(sets, Vector, dims...)
+
 Base.in(x, sets::TupleSet) = all(map(in, x, sets.sets))
 
 "Returns an AbstractSet representing valid input values"
