@@ -4,6 +4,7 @@
 [![License](http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE.md)
 [![Build Status](https://travis-ci.org/JuliaML/LearnBase.jl.svg?branch=master)](https://travis-ci.org/JuliaML/LearnBase.jl)
 [![Build status](https://ci.appveyor.com/api/projects/status/t1hds926lm0rog8h/branch/master?svg=true)](https://ci.appveyor.com/project/Evizero/learnbase-jl/branch/master)
+[![Coverage Status](https://coveralls.io/repos/github/JuliaML/LearnBase.jl/badge.svg?branch=master)](https://coveralls.io/github/JuliaML/LearnBase.jl?branch=master)
 
 This package is embodies a community effort to provide common types and function-definitions for Machine Learning packages in Julia.
 
