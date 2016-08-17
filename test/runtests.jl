@@ -91,6 +91,7 @@ let s = IntervalSet(-1,1)
         @test typeof(x) == Float64
         @test x in s
     end
+    @test LearnBase.randtype(s) == Float64
     # @show s LearnBase.randtype(s)
 end
 let s = IntervalSet(-1,1.0)
@@ -121,6 +122,9 @@ let s = DiscreteSet([-1,1])
         @test typeof(x) == Int
         @test x in s
     end
+    @test LearnBase.randtype(s) == Int
+    @test length(s) == 2
+    @test s[1] == -1
     # @show s LearnBase.randtype(s)
 end
 let s = DiscreteSet([-1,1.0])
@@ -145,6 +149,7 @@ let s = TupleSet(IntervalSet(0,1), DiscreteSet([0,1]))
     @test typeof(rand(s, 2)) == Vector{Vector{Float64}}
     @test typeof(rand(s, Tuple)) == Tuple{Float64,Int}
     @test typeof(rand(s, Tuple, 2)) == Vector{Tuple{Float64,Int}}
+    @test LearnBase.randtype(s) == Vector{Float64}
     # @show s LearnBase.randtype(s)
 end
 
