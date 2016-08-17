@@ -129,13 +129,11 @@ immutable IntervalSet{T<:Number} <: AbstractSet
     lo::T
     hi::T
 end
-
 function IntervalSet{A<:Number,B<:Number}(lo::A, hi::B)
     T = promote_type(A,B)
     IntervalSet{T}(convert(T,lo), convert(T,hi))
 end
-
-Base.rand{T<:Number}(s::IntervalSet{T}) = rand() * (s.hi - s.lo) + s.lo
+Base.rand{T<:Number}(s::IntervalSet{T}, dims::Integer...) = rand(dims...) * (s.hi - s.lo) + s.lo
 Base.in{T<:Number}(x::Number, s::IntervalSet{T}) = s.lo <= x <= s.hi
 
 
@@ -143,7 +141,7 @@ Base.in{T<:Number}(x::Number, s::IntervalSet{T}) = s.lo <= x <= s.hi
 immutable DiscreteSet{T} <: AbstractSet
     items::T
 end
-Base.rand(s::DiscreteSet) = rand(s.items)
+Base.rand(s::DiscreteSet, dims::Integer...) = rand(s.items, dims...)
 Base.in(x, s::DiscreteSet) = x in s.items
 Base.length(s::DiscreteSet) = length(s.items)
 Base.getindex(s::DiscreteSet, i::Int) = s.items[i]
@@ -151,6 +149,13 @@ Base.getindex(s::DiscreteSet, i::Int) = s.items[i]
 
 # operations on arrays of sets
 Base.rand{S<:AbstractSet}(sets::AbstractArray{S}) = map(rand, sets)
+function Base.rand{S<:AbstractSet}(sets::AbstractArray{S}, dim1::Integer, dims::Integer...)
+    A = Array(typeof(rand(sets)), dim1, dims...)
+    for i in eachindex(A)
+        A[i] = rand(sets)
+    end
+    A
+end
 function Base.in{S<:AbstractSet}(xs::AbstractArray, sets::AbstractArray{S})
     size(xs) == size(sets) && all(map(in, xs, sets))
 end
@@ -161,13 +166,20 @@ immutable TupleSet{T<:Tuple} <: AbstractSet
     sets::T
 end
 TupleSet(sets::AbstractSet...) = TupleSet(sets)
-
-# Base.rand(::Type{Vector}, sets::TupleSet) = 
-# Base.rand(::Type{Tuple}, sets::TupleSet) = ntuple(i->rand(sets.sets[i]), length(sets.sets))
 Base.rand(sets::TupleSet) = [rand(s) for s in sets.sets]
+function Base.rand(sets::TupleSet, dim1::Integer, dims::Integer...)
+    A = Array(typeof(rand(sets)), dim1, dims...)
+    for i in eachindex(A)
+        A[i] = rand(sets)
+    end
+    A
+end
 Base.in(x, sets::TupleSet) = all(map(in, x, sets.sets))
 
+"Returns an AbstractSet representing valid input values"
 function inputdomain end
+
+"Returns an AbstractSet representing valid output/target values"
 function targetdomain end
 
 
@@ -186,6 +198,11 @@ export
         StochasticTransformation,
 
     Minimizeable,
+
+    AbstractSet,
+        IntervalSet,
+        DiscreteSet,
+        TupleSet,
 
     # Functions
     getobs,
