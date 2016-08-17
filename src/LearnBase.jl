@@ -117,6 +117,60 @@ function update! end
 function learn end
 function learn! end
 
+
+"""
+Base class for defining sets of numbers.  Used in specifying 
+the input and output domains of transformations and losses.
+"""
+abstract AbstractSet
+
+"A continuous range (inclusive) between a lo and a hi"
+immutable IntervalSet{T<:Number} <: AbstractSet
+    lo::T
+    hi::T
+end
+
+function IntervalSet{A<:Number,B<:Number}(lo::A, hi::B)
+    T = promote_type(A,B)
+    IntervalSet{T}(convert(T,lo), convert(T,hi))
+end
+
+Base.rand{T<:Number}(s::IntervalSet{T}) = rand() * (s.hi - s.lo) + s.lo
+Base.in{T<:Number}(x::Number, s::IntervalSet{T}) = s.lo <= x <= s.hi
+
+
+"Set of discrete items"
+immutable DiscreteSet{T} <: AbstractSet
+    items::T
+end
+Base.rand(s::DiscreteSet) = rand(s.items)
+Base.in(x, s::DiscreteSet) = x in s.items
+Base.length(s::DiscreteSet) = length(s.items)
+Base.getindex(s::DiscreteSet, i::Int) = s.items[i]
+
+
+# operations on arrays of sets
+Base.rand{S<:AbstractSet}(sets::AbstractArray{S}) = map(rand, sets)
+function Base.in{S<:AbstractSet}(xs::AbstractArray, sets::AbstractArray{S})
+    size(xs) == size(sets) && all(map(in, xs, sets))
+end
+
+
+"Groups several heterogenous sets.  Used mainly for proper dispatch."
+immutable TupleSet{T<:Tuple} <: AbstractSet
+    sets::T
+end
+TupleSet(sets::AbstractSet...) = TupleSet(sets)
+
+# Base.rand(::Type{Vector}, sets::TupleSet) = 
+# Base.rand(::Type{Tuple}, sets::TupleSet) = ntuple(i->rand(sets.sets[i]), length(sets.sets))
+Base.rand(sets::TupleSet) = [rand(s) for s in sets.sets]
+Base.in(x, sets::TupleSet) = all(map(in, x, sets.sets))
+
+function inputdomain end
+function targetdomain end
+
+
 export
 
     # Types
@@ -161,6 +215,8 @@ export
     value_grad!,
     prox,
     prox!,
+    inputdomain,
+    targetdomain,
 
     isminimizable,
     isdifferentiable,
