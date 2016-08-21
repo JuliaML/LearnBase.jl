@@ -46,6 +46,7 @@ using Base.Test
 @test typeof(isdifferentiable) <: Function
 @test typeof(istwicedifferentiable) <: Function
 @test typeof(isconvex) <: Function
+@test typeof(isstrictlyconvex) <: Function
 @test typeof(isstronglyconvex) <: Function
 @test typeof(isnemitski) <: Function
 @test typeof(isunivfishercons) <: Function
@@ -69,6 +70,16 @@ using StatsBase
 @test StatsBase.fit  == LearnBase.fit
 @test StatsBase.fit! == LearnBase.fit!
 @test StatsBase.nobs == LearnBase.nobs
+
+# Test superset fallbacks
+immutable MyStronglyConvexType end
+LearnBase.isstronglyconvex(::MyStronglyConvexType) = true
+LearnBase.islipschitzcont(::MyStronglyConvexType) = true
+@test isstronglyconvex(MyStronglyConvexType())
+@test isstrictlyconvex(MyStronglyConvexType())
+@test isconvex(MyStronglyConvexType())
+@test islipschitzcont(MyStronglyConvexType())
+@test islocallylipschitzcont(MyStronglyConvexType())
 
 # IntervalSet
 let s = IntervalSet(-1,1)
@@ -100,7 +111,7 @@ let s = IntervalSet(-1,1.0)
     @test 1 in s
     # @show s LearnBase.randtype(s)
 end
- 
+
 # DiscreteSet
 let s = DiscreteSet([-1,1])
     @test typeof(s) == DiscreteSet{Vector{Int}}

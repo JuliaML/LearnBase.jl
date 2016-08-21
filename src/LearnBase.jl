@@ -79,17 +79,23 @@ function isminimizable end
 function isdifferentiable end
 function istwicedifferentiable end
 function isconvex end
+function isstrictlyconvex end
 function isstronglyconvex end
 function isnemitski end
 function isunivfishercons end
 function isfishercons end
 function islipschitzcont end
 function islocallylipschitzcont end
-function islipschitzcont_deriv end
+function islipschitzcont_deriv end # maybe overkill
 function isclipable end
 function ismarginbased end
 function isclasscalibrated end
 function isdistancebased end
+
+# fallback to supersets
+isstrictlyconvex(any) = isstronglyconvex(any)
+isconvex(any) = isstrictlyconvex(any)
+islocallylipschitzcont(any) = islipschitzcont(any)
 
 """
 Anything that takes an input and performs some kind
@@ -250,6 +256,7 @@ export
     isdifferentiable,
     istwicedifferentiable,
     isconvex,
+    isstrictlyconvex,
     isstronglyconvex,
     isnemitski,
     isunivfishercons,
