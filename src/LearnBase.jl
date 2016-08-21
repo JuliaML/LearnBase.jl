@@ -18,16 +18,16 @@ costs are `Loss` and `Penalty`.
 abstract Cost
 
 """
-Baseclass for all losses. A loss is a some (possibly simplified)
-function `L(features, targets, outputs)`, where `outputs` is the
+Baseclass for all losses. A loss is some (possibly simplified)
+function `L(features, targets, outputs)`, where `outputs` are the
 result of some function `f(features)`.
 """
 abstract Loss <: Cost
 
 """
-A loss is considered supervised if all the information needed
-to compute `L(features, targets, outputs)` it are contained in
-`targets` and `outputs`, thus allowing for the simplification
+A loss is considered **supervised**, if all the information needed
+to compute `L(features, targets, outputs)` are contained in
+`targets` and `outputs`, and thus allows for the simplification
 `L(targets, outputs)`.
 """
 abstract SupervisedLoss <: Loss
@@ -48,9 +48,9 @@ distance-based.
 abstract DistanceLoss <: SupervisedLoss
 
 """
-A loss is considered usupervised if all the information needed
-to compute `L(features, targets, outputs)` it are contained in
-`features` and `outputs`, thus allowing for the simplification
+A loss is considered **usupervised**, if all the information needed
+to compute `L(features, targets, outputs)` are contained in
+`features` and `outputs`, and thus allows for the simplification
 `L(features, outputs)`.
 """
 abstract UnsupervisedLoss <: Loss
@@ -119,7 +119,7 @@ function learn! end
 
 
 """
-Base class for defining sets of numbers.  Used in specifying 
+Base class for defining sets of numbers. Used in specifying
 the input and output domains of transformations and losses.
 """
 abstract AbstractSet
@@ -164,7 +164,7 @@ function Base.in{S<:AbstractSet}(xs::AbstractArray, sets::AbstractArray{S})
 end
 
 
-"Groups several heterogenous sets.  Used mainly for proper dispatch."
+"Groups several heterogenous sets. Used mainly for proper dispatch."
 immutable TupleSet{T<:Tuple} <: AbstractSet
     sets::T
 end
