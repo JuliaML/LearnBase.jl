@@ -115,7 +115,7 @@ Baseclass for any prediction model that can be minimized.
 This means that an object of a subclass contains all the
 information needed to compute its own current loss.
 """
-abstract Minimizeable <: Transformation
+abstract Minimizable <: Transformation
 
 function getobs end
 function getobs! end
@@ -216,7 +216,7 @@ export
     Transformation,
         StochasticTransformation,
 
-    Minimizeable,
+    Minimizable,
 
     AbstractSet,
         IntervalSet,

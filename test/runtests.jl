@@ -10,7 +10,7 @@ using Base.Test
 @test MarginLoss <: SupervisedLoss
 @test DistanceLoss <: SupervisedLoss
 
-@test Minimizeable <: Any
+@test Minimizable <: Any
 @test Transformation <: Any
 @test StochasticTransformation <: Transformation
 
@@ -177,4 +177,3 @@ let s = [IntervalSet(0,1), DiscreteSet([0,1])]
     @test typeof(rand(s, 2)) == Vector{Vector{Float64}}
     # @show s LearnBase.randtype(s)
 end
-
