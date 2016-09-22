@@ -126,11 +126,7 @@ function learn end
 function learn! end
 
 
-"""
-Base class for defining sets of numbers. Used in specifying
-the input and output domains of transformations and losses.
-"""
-abstract AbstractSet
+import Base: AbstractSet
 
 "A continuous range (inclusive) between a lo and a hi"
 immutable IntervalSet{T<:Number} <: AbstractSet
