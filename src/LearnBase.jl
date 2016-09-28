@@ -140,6 +140,7 @@ end
 randtype(s::IntervalSet) = Float64
 Base.rand{T<:Number}(s::IntervalSet{T}, dims::Integer...) = rand(dims...) * (s.hi - s.lo) + s.lo
 Base.in{T<:Number}(x::Number, s::IntervalSet{T}) = s.lo <= x <= s.hi
+Base.length(s::IntervalSet) = 1
 
 
 "Set of discrete items"
@@ -186,6 +187,10 @@ function Base.rand{OT}(sets::TupleSet, ::Type{OT}, dim1::Integer, dims::Integer.
     end
     A
 end
+Base.length(sets::TupleSet) = sum(length(s) for s in sets.sets)
+Base.start(sets::TupleSet) = start(sets.sets)
+Base.done(sets::TupleSet, i) = done(sets.sets, i)
+Base.next(sets::TupleSet, i) = next(sets.sets, i)
 
 randtype(sets::TupleSet) = randtype(sets, Vector)
 Base.rand(sets::TupleSet, dims::Integer...) = rand(sets, Vector, dims...)
