@@ -110,6 +110,7 @@ let s = IntervalSet(-1,1.0)
     @test typeof(s) <: AbstractSet
     @test 1 in s
     # @show s LearnBase.randtype(s)
+    @test length(s) == 1
 end
 
 # DiscreteSet
@@ -162,6 +163,13 @@ let s = TupleSet(IntervalSet(0,1), DiscreteSet([0,1]))
     @test typeof(rand(s, Tuple, 2)) == Vector{Tuple{Float64,Int}}
     @test LearnBase.randtype(s) == Vector{Float64}
     # @show s LearnBase.randtype(s)
+
+    tot = 0
+    for (i,x) in enumerate(s)
+        @test x == s.sets[i]
+        tot += length(x)
+    end
+    @test length(s) == tot
 end
 
 # arrays of sets
