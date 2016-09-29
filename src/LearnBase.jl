@@ -129,18 +129,26 @@ function learn! end
 import Base: AbstractSet
 
 "A continuous range (inclusive) between a lo and a hi"
-immutable IntervalSet{T<:Number} <: AbstractSet
+immutable IntervalSet{T} <: AbstractSet
     lo::T
     hi::T
 end
-function IntervalSet{A<:Number,B<:Number}(lo::A, hi::B)
+function IntervalSet{A,B}(lo::A, hi::B)
     T = promote_type(A,B)
     IntervalSet{T}(convert(T,lo), convert(T,hi))
 end
-randtype(s::IntervalSet) = Float64
+
+# numeric interval
+randtype{T<:Number}(s::IntervalSet{T}) = Float64
 Base.rand{T<:Number}(s::IntervalSet{T}, dims::Integer...) = rand(dims...) * (s.hi - s.lo) + s.lo
 Base.in{T<:Number}(x::Number, s::IntervalSet{T}) = s.lo <= x <= s.hi
-Base.length(s::IntervalSet) = 1
+Base.length{T<:Number}(s::IntervalSet{T}) = 1
+
+# vector of intervals
+randtype{T<:AbstractVector}(s::IntervalSet{T}) = Vector{Float64}
+Base.rand{T<:AbstractVector}(s::IntervalSet{T}) = Float64[rand() * (s.hi[i] - s.lo[i]) + s.lo[i] for i=1:length(s)]
+Base.in{T<:AbstractVector}(x::AbstractVector, s::IntervalSet{T}) = all(i -> s.lo[i] <= x[i] <= s.hi[i], 1:length(s))
+Base.length{T<:AbstractVector}(s::IntervalSet{T}) = length(s.lo)
 
 
 "Set of discrete items"

@@ -113,6 +113,19 @@ let s = IntervalSet(-1,1.0)
     @test length(s) == 1
 end
 
+# IntervalSet{Vector}
+let s = IntervalSet([-1.,0.], [1.,1.])
+    @test typeof(s) == IntervalSet{Vector{Float64}}
+    @test typeof(s) <: AbstractSet
+    @test LearnBase.randtype(s) == Vector{Float64}
+    @test typeof(rand(s)) == Vector{Float64}
+    @test rand(s) in s
+    @test [-1, 0] in s
+    @test !([-1.5,0] in s)
+    @test !([0,2] in s)
+    @test length(s) == 2
+end
+
 # DiscreteSet
 let s = DiscreteSet([-1,1])
     @test typeof(s) == DiscreteSet{Vector{Int}}
