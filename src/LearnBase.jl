@@ -69,13 +69,21 @@ function deriv end
 function deriv2 end
 function deriv! end
 function value_deriv end
-function grad end
-function grad! end
 function addgrad! end
 function value_grad end
 function value_grad! end
 function prox end
 function prox! end
+
+"Return the learnable parameters of a model/transformation"
+function params end
+"Set the learnable parameters of a model/transformation"
+function params! end
+
+"Return the gradient of the learnable parameters w.r.t. some objective"
+function grad end
+"Do a backward pass, updating the gradients of learnable parameters and/or inputs"
+function grad! end
 
 function isminimizable end
 function isdifferentiable end
@@ -106,8 +114,10 @@ prediction function.
 """
 abstract Transformation
 abstract StochasticTransformation <: Transformation
+abstract Learnable <: Transformation
 
 function transform end
+"Do a forward pass, and return the output"
 function transform! end
 
 """
@@ -223,6 +233,7 @@ export
         Penalty,
 
     Transformation,
+        Learnable,
         StochasticTransformation,
 
     Minimizable,
@@ -250,6 +261,8 @@ export
     sumderiv,
     deriv,
     deriv!,
+    params,
+    params!,
     grad,
     grad!,
     addgrad!,
