@@ -4,6 +4,7 @@ module LearnBase
 
 # Only reexport required functions by default
 import StatsBase: nobs, fit, fit!
+import Distributions: params, params!
 
 # We temporary reexport issymmetric for smooth
 # transition into 0.5
@@ -74,11 +75,6 @@ function value_grad end
 function value_grad! end
 function prox end
 function prox! end
-
-"Return the learnable parameters of a model/transformation"
-function params end
-"Set the learnable parameters of a model/transformation"
-function params! end
 
 "Return the gradient of the learnable parameters w.r.t. some objective"
 function grad end
