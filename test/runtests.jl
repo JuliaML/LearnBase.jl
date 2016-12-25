@@ -61,9 +61,19 @@ using Base.Test
 
 @test typeof(issymmetric) <: Function
 
+@test typeof(getobs) <: Function
+@test typeof(getobs!) <: Function
+@test typeof(datasubset) <: Function
+
 @test typeof(fit) <: Function
 @test typeof(fit!) <: Function
 @test typeof(nobs) <: Function
+
+@test ObsDim.Constant <: LearnBase.ObsDimension
+@test ObsDim.First <: LearnBase.ObsDimension
+@test ObsDim.Last <: LearnBase.ObsDimension
+@test ObsDim.Undefined <: LearnBase.ObsDimension
+@test typeof(ObsDim.Constant(2)) <: ObsDim.Constant{2}
 
 # Test that LearnBase reuses StatsBase functions
 using StatsBase
