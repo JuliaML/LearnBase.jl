@@ -208,3 +208,74 @@ let s = [IntervalSet(0,1), DiscreteSet([0,1])]
     @test typeof(rand(s, 2)) == Vector{Vector{Float64}}
     # @show s LearnBase.randtype(s)
 end
+
+@testset "obsdim typetree and Constructor" begin
+    @test_throws MethodError ObsDim.Constant(2.0)
+
+    @test typeof(ObsDim.First()) <: LearnBase.ObsDimension
+    @test typeof(ObsDim.First()) <: ObsDim.First
+    @test typeof(ObsDim.First()) <: ObsDim.Constant{1}
+
+    @test typeof(ObsDim.Last()) <: LearnBase.ObsDimension
+    @test typeof(ObsDim.Last()) <: ObsDim.Last
+
+    @test typeof(ObsDim.Constant(2)) <: LearnBase.ObsDimension
+    @test typeof(ObsDim.Constant(2)) <: ObsDim.Constant{2}
+end
+
+@testset "obs_dim helper constructor" begin
+    @test_throws ArgumentError LearnBase.obs_dim("test")
+    @test_throws ArgumentError LearnBase.obs_dim(1.0)
+
+    @test @inferred(LearnBase.obs_dim(ObsDim.First())) === ObsDim.First()
+    @test @inferred(LearnBase.obs_dim(ObsDim.First())) === ObsDim.Constant(1)
+    @test @inferred(LearnBase.obs_dim(ObsDim.Last()))  === ObsDim.Last()
+    @test @inferred(LearnBase.obs_dim(ObsDim.Constant(2))) === ObsDim.Constant(2)
+
+    @test_throws ErrorException @inferred LearnBase.obs_dim(1)
+    @test_throws ErrorException @inferred LearnBase.obs_dim(6)
+    @test LearnBase.obs_dim(1) === ObsDim.First()
+    @test LearnBase.obs_dim(2) === ObsDim.Constant(2)
+    @test LearnBase.obs_dim(6) === ObsDim.Constant(6)
+    @test_throws ErrorException @inferred LearnBase.obs_dim(:first)
+    @test_throws ErrorException @inferred LearnBase.obs_dim("first")
+    @test LearnBase.obs_dim((:first,:last))  === (ObsDim.First(),ObsDim.Last())
+    @test LearnBase.obs_dim(:first)  === ObsDim.First()
+    @test LearnBase.obs_dim(:begin)  === ObsDim.First()
+    @test LearnBase.obs_dim("first") === ObsDim.First()
+    @test LearnBase.obs_dim("BEGIN") === ObsDim.First()
+    @test LearnBase.obs_dim(:end)   === ObsDim.Last()
+    @test LearnBase.obs_dim(:last)  === ObsDim.Last()
+    @test LearnBase.obs_dim("End")  === ObsDim.Last()
+    @test LearnBase.obs_dim("LAST") === ObsDim.Last()
+    @test LearnBase.obs_dim(:nothing) === ObsDim.Undefined()
+    @test LearnBase.obs_dim(:none) === ObsDim.Undefined()
+    @test LearnBase.obs_dim(:na) === ObsDim.Undefined()
+    @test LearnBase.obs_dim(:null) === ObsDim.Undefined()
+    @test LearnBase.obs_dim(:undefined) === ObsDim.Undefined()
+    @test LearnBase.obs_dim(nothing) === ObsDim.Undefined()
+end
+
+immutable SomeType end
+@testset "obsdim default values" begin
+    @testset "Arrays, SubArrays, and Sparse Arrays" begin
+        @test @inferred(LearnBase.default_obsdim(rand(10))) === ObsDim.Last()
+        @test @inferred(LearnBase.default_obsdim(view(rand(10),:))) === ObsDim.Last()
+        @test @inferred(LearnBase.default_obsdim(rand(10,5))) === ObsDim.Last()
+        @test @inferred(LearnBase.default_obsdim(view(rand(10,5),:,:))) === ObsDim.Last()
+        @test @inferred(LearnBase.default_obsdim(sprand(10,0.5))) === ObsDim.Last()
+        @test @inferred(LearnBase.default_obsdim(sprand(10,5,0.5))) === ObsDim.Last()
+    end
+
+    @testset "Types with no specified default" begin
+        @test @inferred(LearnBase.default_obsdim(SomeType())) === ObsDim.Undefined()
+    end
+
+    @testset "Tuples" begin
+        @test @inferred(LearnBase.default_obsdim((SomeType(),SomeType()))) === (ObsDim.Undefined(), ObsDim.Undefined())
+        @test @inferred(LearnBase.default_obsdim((SomeType(),rand(2,2)))) === (ObsDim.Undefined(), ObsDim.Last())
+        @test @inferred(LearnBase.default_obsdim((rand(10),SomeType()))) === (ObsDim.Last(), ObsDim.Undefined())
+        @test @inferred(LearnBase.default_obsdim((rand(10),rand(2,2)))) === (ObsDim.Last(), ObsDim.Last())
+    end
+end
+
