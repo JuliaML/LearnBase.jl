@@ -3,7 +3,7 @@ __precompile__(true)
 module LearnBase
 
 # Only reexport required functions by default
-import StatsBase: nobs, fit, fit!
+import StatsBase: nobs, fit, fit!, predict
 import Distributions: params, params!
 
 # We temporary reexport issymmetric for smooth
