@@ -264,7 +264,7 @@ default_obsdim(tup::Tuple) = map(default_obsdim, tup)
 import Base: AbstractSet
 
 "A continuous range (inclusive) between a lo and a hi"
-immutable IntervalSet{T} <: AbstractSet
+immutable IntervalSet{T} <: AbstractSet{T}
     lo::T
     hi::T
 end
@@ -287,7 +287,7 @@ Base.length{T<:AbstractVector}(s::IntervalSet{T}) = length(s.lo)
 
 
 "Set of discrete items"
-immutable DiscreteSet{T<:AbstractArray} <: AbstractSet
+immutable DiscreteSet{T<:AbstractArray} <: AbstractSet{T}
     items::T
 end
 randtype(s::DiscreteSet) = eltype(s.items)
@@ -301,7 +301,7 @@ Base.getindex(s::DiscreteSet, i::Int) = s.items[i]
 randtype{S<:AbstractSet,N}(sets::AbstractArray{S,N}) = Array{promote_type(map(randtype, sets)...), N}
 Base.rand{S<:AbstractSet}(sets::AbstractArray{S}) = eltype(randtype(sets))[rand(s) for s in sets]
 function Base.rand{S<:AbstractSet}(sets::AbstractArray{S}, dim1::Integer, dims::Integer...)
-    A = Array(randtype(sets), dim1, dims...)
+    A = Array{randtype(sets)}(dim1, dims...)
     for i in eachindex(A)
         A[i] = rand(sets)
     end
@@ -313,7 +313,7 @@ end
 
 
 "Groups several heterogenous sets. Used mainly for proper dispatch."
-immutable TupleSet{T<:Tuple} <: AbstractSet
+immutable TupleSet{T<:Tuple} <: AbstractSet{T}
     sets::T
 end
 TupleSet(sets::AbstractSet...) = TupleSet(sets)
@@ -324,7 +324,7 @@ Base.rand(sets::TupleSet, ::Type{Vector}) = eltype(randtype(sets, Vector))[rand(
 randtype(sets::TupleSet, ::Type{Tuple}) = Tuple{map(randtype, sets.sets)...}
 Base.rand(sets::TupleSet, ::Type{Tuple}) = map(rand, sets.sets)
 function Base.rand{OT}(sets::TupleSet, ::Type{OT}, dim1::Integer, dims::Integer...)
-    A = Array(randtype(sets, OT), dim1, dims...)
+    A = Array{randtype(sets, OT)}(dim1, dims...)
     for i in eachindex(A)
         A[i] = rand(sets, OT)
     end
