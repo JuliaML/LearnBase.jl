@@ -60,6 +60,8 @@ abstract UnsupervisedLoss <: Loss
 
 abstract Penalty <: Cost
 
+function scaled end
+
 function value end
 function value! end
 function meanvalue end
@@ -75,7 +77,6 @@ function value_grad end
 function value_grad! end
 function prox end
 function prox! end
-function scaled end
 
 "Return the gradient of the learnable parameters w.r.t. some objective"
 function grad end
@@ -372,6 +373,8 @@ export
     # Functions
     getobs,
     getobs!,
+
+    scaled,
 
     learn,
     learn!,

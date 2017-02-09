@@ -24,6 +24,8 @@ using Base.Test
 @test typeof(update) <: Function
 @test typeof(update!) <: Function
 
+@test typeof(scaled) <: Function
+
 @test typeof(value) <: Function
 @test typeof(value!) <: Function
 @test typeof(meanvalue) <: Function
