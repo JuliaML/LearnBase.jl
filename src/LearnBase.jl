@@ -5,27 +5,22 @@ module LearnBase
 # Only reexport required functions by default
 import StatsBase: nobs, fit, fit!, predict
 import Distributions: params, params!
+using Compat
 
-# We temporary reexport issymmetric for smooth
-# transition into 0.5
-if VERSION >= v"0.5-"
-    import Base.issymmetric
-else
-    const issymmetric = Base.issym
-end
+import Base.issymmetric
 
 """
 Baseclass for any kind of cost. Notable examples for
 costs are `Loss` and `Penalty`.
 """
-abstract type Cost end
+@compat abstract type Cost end
 
 """
 Baseclass for all losses. A loss is some (possibly simplified)
 function `L(features, targets, outputs)`, where `outputs` are the
 result of some function `f(features)`.
 """
-abstract type Loss <: Cost end
+@compat abstract type Loss <: Cost end
 
 """
 A loss is considered **supervised**, if all the information needed
@@ -33,14 +28,14 @@ to compute `L(features, targets, outputs)` are contained in
 `targets` and `outputs`, and thus allows for the simplification
 `L(targets, outputs)`.
 """
-abstract type SupervisedLoss <: Loss end
+@compat abstract type SupervisedLoss <: Loss end
 
 """
 A supervised loss, where the targets are in {-1, 1}, and which
 can be simplified to `L(targets, outputs) = L(targets * outputs)`
 is considered **margin-based**.
 """
-abstract type MarginLoss <: SupervisedLoss end
+@compat abstract type MarginLoss <: SupervisedLoss end
 
 
 """
@@ -48,7 +43,7 @@ A supervised loss that can be simplified to
 `L(targets, outputs) = L(targets - outputs)` is considered
 distance-based.
 """
-abstract type DistanceLoss <: SupervisedLoss end
+@compat abstract type DistanceLoss <: SupervisedLoss end
 
 """
 A loss is considered **unsupervised**, if all the information needed
@@ -56,9 +51,9 @@ to compute `L(features, targets, outputs)` are contained in
 `features` and `outputs`, and thus allows for the simplification
 `L(features, outputs)`.
 """
-abstract type UnsupervisedLoss <: Loss end
+@compat abstract type UnsupervisedLoss <: Loss end
 
-abstract type Penalty <: Cost end
+@compat abstract type Penalty <: Cost end
 
 function scaled end
 
@@ -110,9 +105,9 @@ Anything that takes an input and performs some kind
 of function to produce an output. For example a linear
 prediction function.
 """
-abstract type Transformation end
-abstract type StochasticTransformation <: Transformation end
-abstract type Learnable <: Transformation end
+@compat abstract type Transformation end
+@compat abstract type StochasticTransformation <: Transformation end
+@compat abstract type Learnable <: Transformation end
 
 function transform end
 "Do a forward pass, and return the output"
@@ -123,7 +118,7 @@ Baseclass for any prediction model that can be minimized.
 This means that an object of a subclass contains all the
 information needed to compute its own current loss.
 """
-abstract type Minimizable <: Learnable end
+@compat abstract type Minimizable <: Learnable end
 
 function getobs end
 function getobs! end
@@ -193,7 +188,7 @@ function default_obsdim end
 
 # just for dispatch for those who care to
 "see `?ObsDim`"
-abstract type ObsDimension end
+@compat abstract type ObsDimension end
 
 """
     module ObsDim
