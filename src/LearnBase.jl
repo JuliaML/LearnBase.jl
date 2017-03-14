@@ -120,9 +120,6 @@ information needed to compute its own current loss.
 """
 @compat abstract type Minimizable <: Learnable end
 
-function getobs end
-function getobs! end
-
 function update end
 function update! end
 function learn end
