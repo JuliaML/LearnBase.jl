@@ -155,6 +155,40 @@ function getobs! end
 
 # --------------------------------------------------------------------
 
+#    gettarget([f], observation)
+#
+# Use `f` (if provided) to extract the target from the single
+# `observation` and return it. It is used internally by
+# `targets` (only if `f` is provided) and by
+# `eachtarget` (always) on each individual observation.
+#
+# Even though this function is not exported, it is intended to be
+# extended by users to support their custom data storage types.
+#
+# This function is implemented in MLDataPattern
+function gettarget end # not exported
+
+#    gettargets(data, [idx], [obsdim])
+#
+# Return the targets corresponding to the observation-index `idx`.
+# Note that `idx` can be of type `Int` or `AbstractVector`.
+#
+# Implementing this function for a custom type of `data` is
+# optional. It is particularly useful if the targets in `data` can
+# be provided without invoking `getobs`. For example if you have a
+# remote data-source where the labels are part of some metadata
+# that is locally available.
+#
+# This function is implemented in MLDataPattern
+function gettargets end # not exported
+
+#    targets([f], data, [obsdim])
+#
+# This function is implemented in MLDataPattern
+function targets end
+
+# --------------------------------------------------------------------
+
 """
     datasubset(data, [indices], [obsdim])
 
@@ -421,6 +455,8 @@ export
     getobs!,
     datasubset,
     ObsDim,
+
+    targets,
 
     # StatsBase
     fit,

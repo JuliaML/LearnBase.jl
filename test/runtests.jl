@@ -67,6 +67,10 @@ using Base.Test
 @test typeof(getobs!) <: Function
 @test typeof(datasubset) <: Function
 
+@test typeof(targets) <: Function
+@test typeof(LearnBase.gettarget) <: Function
+@test typeof(LearnBase.gettargets) <: Function
+
 @test typeof(fit) <: Function
 @test typeof(fit!) <: Function
 @test typeof(nobs) <: Function
