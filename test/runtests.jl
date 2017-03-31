@@ -71,6 +71,30 @@ using Base.Test
 @test typeof(LearnBase.gettarget) <: Function
 @test typeof(LearnBase.gettargets) <: Function
 
+@test DataView <: AbstractVector
+@test DataView <: AbstractDataIterator
+@test DataView{Int} <: AbstractVector{Int}
+@test DataView{Int,Vector{Int}} <: AbstractDataIterator{Int,Vector{Int}}
+@test AbstractObsView <: DataView
+@test AbstractObsView <: AbstractObsIterator
+@test AbstractObsView{Int,Vector{Int}} <: DataView{Int,Vector{Int}}
+@test AbstractObsView{Int,Vector{Int}} <: AbstractObsIterator{Int,Vector{Int}}
+@test AbstractBatchView <: DataView
+@test AbstractBatchView <: AbstractBatchIterator
+@test AbstractBatchView{Int,Vector{Int}} <: DataView{Int,Vector{Int}}
+@test AbstractBatchView{Int,Vector{Int}} <: AbstractBatchIterator{Int,Vector{Int}}
+
+@test DataIterator <: AbstractDataIterator
+@test DataIterator{Int,Vector{Int}} <: AbstractDataIterator{Int,Vector{Int}}
+@test ObsIterator <: DataIterator
+@test ObsIterator <: AbstractObsIterator
+@test ObsIterator{Int,Vector{Int}} <: DataIterator{Int,Vector{Int}}
+@test ObsIterator{Int,Vector{Int}} <: AbstractObsIterator{Int,Vector{Int}}
+@test BatchIterator <: DataIterator
+@test BatchIterator <: AbstractBatchIterator
+@test BatchIterator{Int,Vector{Int}} <: DataIterator{Int,Vector{Int}}
+@test BatchIterator{Int,Vector{Int}} <: AbstractBatchIterator{Int,Vector{Int}}
+
 @test typeof(fit) <: Function
 @test typeof(fit!) <: Function
 @test typeof(nobs) <: Function
