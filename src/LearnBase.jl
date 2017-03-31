@@ -125,32 +125,45 @@ function update! end
 function learn end
 function learn! end
 
-"""
-    getobs(data, [idx], [obsdim])
-
-Returns the observations corresponding to the observation-index `idx`.
-Note that `idx` can be of type `Int` or `AbstractVector`.
-
-If it makes sense for the type of `data`, `obsdim` can be used to
-specify which dimension of `data` denotes the observations.
-It can be specified in a typestable manner as a positional argument
-(see `?ObsDim`), or more conveniently as a smart keyword argument.
-"""
+#    getobs(data, [idx], [obsdim])
+#
+# Return the observations corresponding to the observation-index
+# `idx`. Note that `idx` can be of type `Int` or `AbstractVector`.
+# Both options must be supported by a custom type.
+#
+# The returned observation(s) should be in the form intended to
+# be passed as-is to some learning algorithm. There is no strict
+# interface requirement on how this "actual data" must look like.
+# Every author behind some custom data container can make this
+# decision him-/herself. We do, however, expect it to be consistent
+# for `idx` being an integer, as well as `idx` being an abstract
+# vector, respectively.
+#
+# If it makes sense for the type of `data`, `obsdim` can be used
+# to disptach on which dimension of `data` denotes the observations.
+# See `?ObsDim`
+#
+# This function is implemented in MLDataPattern
 function getobs end
 
-"""
-    getobs!(buffer, data, [idx], [obsdim])
-
-Inplace version of `getobs(data, idx, obsdim)`. If this method is
-defined for the type of `data`, then `buffer` will be used to store
-the result instead of allocating a dedicated object.
-
-Note: In the case no such method is provided for the type of `data`,
-then `buffer` will be **ignored** and the result of `getobs` returned.
-This could be because the type of `data` may not lend itself to the
-concept of `copy!`. Thus supporting a custom `getobs!(::MyType, ...)`
-is optional and not required.
-"""
+#    getobs!(buffer, data, [idx], [obsdim])
+#
+# Inplace version of `getobs(data, idx, obsdim)`. If this method
+# is defined for the type of `data`, then `buffer` should be used
+# to store the result, instead of allocating a dedicated object.
+#
+# Implementing this function is optional. In the case no such
+# method is provided for the type of `data`, then `buffer` will be
+# *ignored* and the result of `getobs` returned. This could be
+# because the type of `data` may not lend itself to the concept
+# of `copy!`. Thus supporting a custom `getobs!(::MyType, ...)`
+# is optional and not required.
+#
+# If it makes sense for the type of `data`, `obsdim` can be used
+# to disptach on which dimension of `data` denotes the observations.
+# See `?ObsDim`
+#
+# This function is implemented in MLDataPattern
 function getobs! end
 
 # --------------------------------------------------------------------
