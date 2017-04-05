@@ -371,14 +371,13 @@ module ObsDim
     const First = Constant{1}
 end
 
-# interval convenience function; not exported
-obs_dim(dim) = throw(ArgumentError("Unknown way to specify a obsdim: $dim"))
-obs_dim(dim::ObsDimension) = dim
-obs_dim(::Void) = ObsDim.Undefined()
-obs_dim(dim::Int) = ObsDim.Constant(dim)
-obs_dim(dim::String) = obs_dim(Symbol(lowercase(dim)))
-obs_dim(dims::Tuple) = map(obs_dim, dims)
-function obs_dim(dim::Symbol)
+Base.convert(::Type{ObsDimension}, dim) = throw(ArgumentError("Unknown way to specify a obsdim: $dim"))
+Base.convert(::Type{ObsDimension}, dim::ObsDimension) = dim
+Base.convert(::Type{ObsDimension}, ::Void) = ObsDim.Undefined()
+Base.convert(::Type{ObsDimension}, dim::Int) = ObsDim.Constant(dim)
+Base.convert(::Type{ObsDimension}, dim::String) = convert(ObsDimension, Symbol(lowercase(dim)))
+Base.convert(::Type{ObsDimension}, dims::Tuple) = map(d->convert(ObsDimension, d), dims)
+function Base.convert(::Type{ObsDimension}, dim::Symbol)
     if dim == :first || dim == :begin
         ObsDim.First()
     elseif dim == Symbol("end") || dim == :last
@@ -390,8 +389,10 @@ function obs_dim(dim::Symbol)
     end
 end
 
-@noinline default_obsdim(data) = ObsDim.Undefined()
-@noinline default_obsdim(A::AbstractArray) = ObsDim.Last()
+@deprecate obs_dim(dim) convert(ObsDimension, dim)
+
+default_obsdim(data) = ObsDim.Undefined()
+default_obsdim(A::AbstractArray) = ObsDim.Last()
 default_obsdim(tup::Tuple) = map(default_obsdim, tup)
 
 
