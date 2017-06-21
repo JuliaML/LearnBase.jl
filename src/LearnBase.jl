@@ -3,8 +3,7 @@ __precompile__(true)
 module LearnBase
 
 # Only reexport required functions by default
-import StatsBase: nobs, fit, fit!, predict
-import Distributions: params, params!
+import StatsBase: nobs, fit, fit!, predict, params, params!
 using Compat
 
 import Base.issymmetric
