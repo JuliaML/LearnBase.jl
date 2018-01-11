@@ -345,21 +345,21 @@ module ObsDim
     Default value for most functions. Denotes that the concept of
     an observation dimension is not defined for the given data.
     """
-    immutable Undefined <: ObsDimension end
+    struct Undefined <: ObsDimension end
 
     """
         ObsDim.Last <: ObsDimension
 
     Defines that the last dimension denotes the observations
     """
-    immutable Last <: ObsDimension end
+    struct Last <: ObsDimension end
 
     """
         ObsDim.Constant{DIM} <: ObsDimension
 
     Defines that the dimension `DIM` denotes the observations
     """
-    immutable Constant{DIM} <: ObsDimension end
+    struct Constant{DIM} <: ObsDimension end
     Constant(dim::Int) = Constant{dim}()
 
     """
@@ -398,7 +398,7 @@ default_obsdim(tup::Tuple) = map(default_obsdim, tup)
 import Base: AbstractSet
 
 "A continuous range (inclusive) between a lo and a hi"
-immutable IntervalSet{T} <: AbstractSet{T}
+struct IntervalSet{T} <: AbstractSet{T}
     lo::T
     hi::T
 end
@@ -421,7 +421,7 @@ Base.length{T<:AbstractVector}(s::IntervalSet{T}) = length(s.lo)
 
 
 "Set of discrete items"
-immutable DiscreteSet{T<:AbstractArray} <: AbstractSet{T}
+struct DiscreteSet{T<:AbstractArray} <: AbstractSet{T}
     items::T
 end
 randtype(s::DiscreteSet) = eltype(s.items)
@@ -447,7 +447,7 @@ end
 
 
 "Groups several heterogenous sets. Used mainly for proper dispatch."
-immutable TupleSet{T<:Tuple} <: AbstractSet{T}
+struct TupleSet{T<:Tuple} <: AbstractSet{T}
     sets::T
 end
 TupleSet(sets::AbstractSet...) = TupleSet(sets)
