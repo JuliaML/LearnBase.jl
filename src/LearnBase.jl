@@ -432,16 +432,20 @@ Base.getindex(s::DiscreteSet, i::Int) = s.items[i]
 
 
 # operations on arrays of sets
-randtype{S<:AbstractSet,N}(sets::AbstractArray{S,N}) = Array{promote_type(map(randtype, sets)...), N}
-Base.rand{S<:AbstractSet}(sets::AbstractArray{S}) = eltype(randtype(sets))[rand(s) for s in sets]
-function Base.rand{S<:AbstractSet}(sets::AbstractArray{S}, dim1::Integer, dims::Integer...)
+function randtype(sets::AbstractArray{S,N}) where {S<:AbstractSet, N}
+    Array{promote_type(map(randtype, sets)...), N}
+end
+function Base.rand(sets::AbstractArray{S}) where {S<:AbstractSet}
+    eltype(randtype(sets))[rand(s) for s in sets]
+end
+function Base.rand(sets::AbstractArray{S}, dim1::Integer, dims::Integer...) where {S<:AbstractSet}
     A = Array{randtype(sets)}(dim1, dims...)
     for i in eachindex(A)
         A[i] = rand(sets)
     end
     A
 end
-function Base.in{S<:AbstractSet}(xs::AbstractArray, sets::AbstractArray{S})
+function Base.in(xs::AbstractArray, sets::AbstractArray{S}) where {S<:AbstractSet}
     size(xs) == size(sets) && all(map(in, xs, sets))
 end
 
@@ -457,7 +461,7 @@ randtype(sets::TupleSet, ::Type{Vector}) = Vector{promote_type(map(randtype, set
 Base.rand(sets::TupleSet, ::Type{Vector}) = eltype(randtype(sets, Vector))[rand(s) for s in sets.sets]
 randtype(sets::TupleSet, ::Type{Tuple}) = Tuple{map(randtype, sets.sets)...}
 Base.rand(sets::TupleSet, ::Type{Tuple}) = map(rand, sets.sets)
-function Base.rand{OT}(sets::TupleSet, ::Type{OT}, dim1::Integer, dims::Integer...)
+function Base.rand(sets::TupleSet, ::Type{OT}, dim1::Integer, dims::Integer...) where {OT}
     A = Array{randtype(sets, OT)}(dim1, dims...)
     for i in eachindex(A)
         A[i] = rand(sets, OT)
