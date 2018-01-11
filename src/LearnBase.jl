@@ -402,22 +402,22 @@ struct IntervalSet{T} <: AbstractSet{T}
     lo::T
     hi::T
 end
-function IntervalSet{A,B}(lo::A, hi::B)
+function IntervalSet(lo::A, hi::B) where {A,B}
     T = promote_type(A,B)
     IntervalSet{T}(convert(T,lo), convert(T,hi))
 end
 
 # numeric interval
-randtype{T<:Number}(s::IntervalSet{T}) = Float64
-Base.rand{T<:Number}(s::IntervalSet{T}, dims::Integer...) = rand(dims...) * (s.hi - s.lo) + s.lo
-Base.in{T<:Number}(x::Number, s::IntervalSet{T}) = s.lo <= x <= s.hi
-Base.length{T<:Number}(s::IntervalSet{T}) = 1
+randtype(s::IntervalSet{<:Number}) = Float64
+Base.rand(s::IntervalSet{<:Number}, dims::Integer...) = rand(dims...) * (s.hi - s.lo) + s.lo
+Base.in(x::Number, s::IntervalSet{<:Number}) = s.lo <= x <= s.hi
+Base.length(s::IntervalSet{<:Number}) = 1
 
 # vector of intervals
-randtype{T<:AbstractVector}(s::IntervalSet{T}) = Vector{Float64}
-Base.rand{T<:AbstractVector}(s::IntervalSet{T}) = Float64[rand() * (s.hi[i] - s.lo[i]) + s.lo[i] for i=1:length(s)]
-Base.in{T<:AbstractVector}(x::AbstractVector, s::IntervalSet{T}) = all(i -> s.lo[i] <= x[i] <= s.hi[i], 1:length(s))
-Base.length{T<:AbstractVector}(s::IntervalSet{T}) = length(s.lo)
+randtype(s::IntervalSet{<:AbstractVector}) = Vector{Float64}
+Base.rand(s::IntervalSet{<:AbstractVector}) = Float64[rand() * (s.hi[i] - s.lo[i]) + s.lo[i] for i=1:length(s)]
+Base.in(x::AbstractVector, s::IntervalSet{<:AbstractVector}) = all(i -> s.lo[i] <= x[i] <= s.hi[i], 1:length(s))
+Base.length(s::IntervalSet{<:AbstractVector}) = length(s.lo)
 
 
 "Set of discrete items"
