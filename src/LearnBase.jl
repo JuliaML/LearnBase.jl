@@ -4,6 +4,7 @@ module LearnBase
 
 # Only reexport required functions by default
 import StatsBase: nobs, fit, fit!, predict, params, params!
+import Unicode: lowercase
 using Compat
 
 import Base.issymmetric
@@ -372,7 +373,7 @@ end
 
 Base.convert(::Type{ObsDimension}, dim) = throw(ArgumentError("Unknown way to specify a obsdim: $dim"))
 Base.convert(::Type{ObsDimension}, dim::ObsDimension) = dim
-Base.convert(::Type{ObsDimension}, ::Void) = ObsDim.Undefined()
+Base.convert(::Type{ObsDimension}, ::Nothing) = ObsDim.Undefined()
 Base.convert(::Type{ObsDimension}, dim::Int) = ObsDim.Constant(dim)
 Base.convert(::Type{ObsDimension}, dim::String) = convert(ObsDimension, Symbol(lowercase(dim)))
 Base.convert(::Type{ObsDimension}, dims::Tuple) = map(d->convert(ObsDimension, d), dims)
@@ -387,8 +388,6 @@ function Base.convert(::Type{ObsDimension}, dim::Symbol)
         throw(ArgumentError("Unknown way to specify a obsdim: $dim"))
     end
 end
-
-@deprecate obs_dim(dim) convert(ObsDimension, dim)
 
 default_obsdim(data) = ObsDim.Undefined()
 default_obsdim(A::AbstractArray) = ObsDim.Last()
@@ -409,7 +408,7 @@ end
 
 # numeric interval
 randtype(s::IntervalSet{<:Number}) = Float64
-Base.rand(s::IntervalSet{<:Number}, dims::Integer...) = rand(dims...) * (s.hi - s.lo) + s.lo
+Base.rand(s::IntervalSet{<:Number}, dims::Integer...) = rand(dims...) .* (s.hi .- s.lo) .+ s.lo
 Base.in(x::Number, s::IntervalSet{<:Number}) = s.lo <= x <= s.hi
 Base.length(s::IntervalSet{<:Number}) = 1
 
@@ -439,7 +438,7 @@ function Base.rand(sets::AbstractArray{S}) where {S<:AbstractSet}
     eltype(randtype(sets))[rand(s) for s in sets]
 end
 function Base.rand(sets::AbstractArray{S}, dim1::Integer, dims::Integer...) where {S<:AbstractSet}
-    A = Array{randtype(sets)}(dim1, dims...)
+    A = Array{randtype(sets)}(uninitialized, dim1, dims...)
     for i in eachindex(A)
         A[i] = rand(sets)
     end
@@ -462,7 +461,7 @@ Base.rand(sets::TupleSet, ::Type{Vector}) = eltype(randtype(sets, Vector))[rand(
 randtype(sets::TupleSet, ::Type{Tuple}) = Tuple{map(randtype, sets.sets)...}
 Base.rand(sets::TupleSet, ::Type{Tuple}) = map(rand, sets.sets)
 function Base.rand(sets::TupleSet, ::Type{OT}, dim1::Integer, dims::Integer...) where {OT}
-    A = Array{randtype(sets, OT)}(dim1, dims...)
+    A = Array{randtype(sets, OT)}(uninitialized, dim1, dims...)
     for i in eachindex(A)
         A[i] = rand(sets, OT)
     end
