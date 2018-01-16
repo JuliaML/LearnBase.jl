@@ -5,7 +5,6 @@ module LearnBase
 # Only reexport required functions by default
 import StatsBase: nobs, fit, fit!, predict, params, params!
 import Unicode: lowercase
-using Compat
 
 import Base.issymmetric
 
@@ -13,14 +12,14 @@ import Base.issymmetric
 Baseclass for any kind of cost. Notable examples for
 costs are `Loss` and `Penalty`.
 """
-@compat abstract type Cost end
+abstract type Cost end
 
 """
 Baseclass for all losses. A loss is some (possibly simplified)
 function `L(features, targets, outputs)`, where `outputs` are the
 result of some function `f(features)`.
 """
-@compat abstract type Loss <: Cost end
+abstract type Loss <: Cost end
 
 """
 A loss is considered **supervised**, if all the information needed
@@ -28,14 +27,14 @@ to compute `L(features, targets, outputs)` are contained in
 `targets` and `outputs`, and thus allows for the simplification
 `L(targets, outputs)`.
 """
-@compat abstract type SupervisedLoss <: Loss end
+abstract type SupervisedLoss <: Loss end
 
 """
 A supervised loss, where the targets are in {-1, 1}, and which
 can be simplified to `L(targets, outputs) = L(targets * outputs)`
 is considered **margin-based**.
 """
-@compat abstract type MarginLoss <: SupervisedLoss end
+abstract type MarginLoss <: SupervisedLoss end
 
 
 """
@@ -43,7 +42,7 @@ A supervised loss that can be simplified to
 `L(targets, outputs) = L(targets - outputs)` is considered
 distance-based.
 """
-@compat abstract type DistanceLoss <: SupervisedLoss end
+abstract type DistanceLoss <: SupervisedLoss end
 
 """
 A loss is considered **unsupervised**, if all the information needed
@@ -51,9 +50,9 @@ to compute `L(features, targets, outputs)` are contained in
 `features` and `outputs`, and thus allows for the simplification
 `L(features, outputs)`.
 """
-@compat abstract type UnsupervisedLoss <: Loss end
+abstract type UnsupervisedLoss <: Loss end
 
-@compat abstract type Penalty <: Cost end
+abstract type Penalty <: Cost end
 
 function scaled end
 
@@ -105,9 +104,9 @@ Anything that takes an input and performs some kind
 of function to produce an output. For example a linear
 prediction function.
 """
-@compat abstract type Transformation end
-@compat abstract type StochasticTransformation <: Transformation end
-@compat abstract type Learnable <: Transformation end
+abstract type Transformation end
+abstract type StochasticTransformation <: Transformation end
+abstract type Learnable <: Transformation end
 
 function transform end
 "Do a forward pass, and return the output"
@@ -118,7 +117,7 @@ Baseclass for any prediction model that can be minimized.
 This means that an object of a subclass contains all the
 information needed to compute its own current loss.
 """
-@compat abstract type Minimizable <: Learnable end
+abstract type Minimizable <: Learnable end
 
 function update end
 function update! end
@@ -215,7 +214,7 @@ individual observation-vectors instead of one matrix.
 
 see `MLDataPattern.ObsView` and `MLDataPattern.BatchView` for examples.
 """
-@compat abstract type DataView{TElem, TData} <: AbstractVector{TElem} end
+abstract type DataView{TElem, TData} <: AbstractVector{TElem} end
 
 """
     abstract AbstractObsView{TElem, TData} <: DataView{TElem, TData}
@@ -225,7 +224,7 @@ that views it as some form or vector of observations.
 
 see `MLDataPattern.ObsView` for a concrete example.
 """
-@compat abstract type AbstractObsView{TElem, TData} <: DataView{TElem, TData} end
+abstract type AbstractObsView{TElem, TData} <: DataView{TElem, TData} end
 
 """
     abstract AbstractBatchView{TElem, TData} <: DataView{TElem, TData}
@@ -235,7 +234,7 @@ that views it as some form or vector of equally sized batches.
 
 see `MLDataPattern.BatchView` for a concrete example.
 """
-@compat abstract type AbstractBatchView{TElem, TData} <: DataView{TElem, TData} end
+abstract type AbstractBatchView{TElem, TData} <: DataView{TElem, TData} end
 
 # --------------------------------------------------------------------
 
@@ -252,7 +251,7 @@ true amount of observations available (if known).
 
 see `MLDataPattern.RandomObs`, `MLDataPattern.RandomBatches`
 """
-@compat abstract type DataIterator{TElem,TData} end
+abstract type DataIterator{TElem,TData} end
 
 """
     abstract ObsIterator{TElem,TData} <: DataIterator{TElem,TData}
@@ -271,7 +270,7 @@ end
 
 see `MLDataPattern.RandomObs`
 """
-@compat abstract type ObsIterator{TElem,TData} <: DataIterator{TElem,TData} end
+abstract type ObsIterator{TElem,TData} <: DataIterator{TElem,TData} end
 
 """
     abstract BatchIterator{TElem,TData} <: DataIterator{TElem,TData}
@@ -290,14 +289,14 @@ end
 
 see `MLDataPattern.RandomBatches`
 """
-@compat abstract type BatchIterator{TElem,TData} <: DataIterator{TElem,TData} end
+abstract type BatchIterator{TElem,TData} <: DataIterator{TElem,TData} end
 
 # --------------------------------------------------------------------
 
 # just for dispatch for those who care to
-@compat const AbstractDataIterator{E,T}  = Union{DataIterator{E,T}, DataView{E,T}}
-@compat const AbstractObsIterator{E,T}   = Union{ObsIterator{E,T},  AbstractObsView{E,T}}
-@compat const AbstractBatchIterator{E,T} = Union{BatchIterator{E,T},AbstractBatchView{E,T}}
+const AbstractDataIterator{E,T}  = Union{DataIterator{E,T}, DataView{E,T}}
+const AbstractObsIterator{E,T}   = Union{ObsIterator{E,T},  AbstractObsView{E,T}}
+const AbstractBatchIterator{E,T} = Union{BatchIterator{E,T},AbstractBatchView{E,T}}
 
 # --------------------------------------------------------------------
 
@@ -325,7 +324,7 @@ function default_obsdim end
 
 # just for dispatch for those who care to
 "see `?ObsDim`"
-@compat abstract type ObsDimension end
+abstract type ObsDimension end
 
 """
     module ObsDim
