@@ -1,5 +1,5 @@
 using LearnBase
-using Base.Test
+using Test
 
 # Test if types are exported properly
 @test Cost <: Any
@@ -112,7 +112,7 @@ using StatsBase
 @test StatsBase.nobs == LearnBase.nobs
 
 # Test superset fallbacks
-immutable MyStronglyConvexType end
+struct MyStronglyConvexType end
 LearnBase.isstronglyconvex(::MyStronglyConvexType) = true
 LearnBase.islipschitzcont(::MyStronglyConvexType) = true
 @test isstronglyconvex(MyStronglyConvexType())
@@ -284,12 +284,9 @@ end
     @test convert(LearnBase.ObsDimension, :null) === ObsDim.Undefined()
     @test convert(LearnBase.ObsDimension, :undefined) === ObsDim.Undefined()
     @test convert(LearnBase.ObsDimension, nothing) === ObsDim.Undefined()
-
-    # TODO: remove test after deprecation phase
-    @test LearnBase.obs_dim(:last) === ObsDim.Last()
 end
 
-immutable SomeType end
+struct SomeType end
 @testset "obsdim default values" begin
     @testset "Arrays, SubArrays, and Sparse Arrays" begin
         @test @inferred(LearnBase.default_obsdim(rand(10))) === ObsDim.Last()

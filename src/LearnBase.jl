@@ -4,7 +4,7 @@ module LearnBase
 
 # Only reexport required functions by default
 import StatsBase: nobs, fit, fit!, predict, params, params!
-using Compat
+import Unicode: lowercase
 
 import Base.issymmetric
 
@@ -12,14 +12,14 @@ import Base.issymmetric
 Baseclass for any kind of cost. Notable examples for
 costs are `Loss` and `Penalty`.
 """
-@compat abstract type Cost end
+abstract type Cost end
 
 """
 Baseclass for all losses. A loss is some (possibly simplified)
 function `L(features, targets, outputs)`, where `outputs` are the
 result of some function `f(features)`.
 """
-@compat abstract type Loss <: Cost end
+abstract type Loss <: Cost end
 
 """
 A loss is considered **supervised**, if all the information needed
@@ -27,14 +27,14 @@ to compute `L(features, targets, outputs)` are contained in
 `targets` and `outputs`, and thus allows for the simplification
 `L(targets, outputs)`.
 """
-@compat abstract type SupervisedLoss <: Loss end
+abstract type SupervisedLoss <: Loss end
 
 """
 A supervised loss, where the targets are in {-1, 1}, and which
 can be simplified to `L(targets, outputs) = L(targets * outputs)`
 is considered **margin-based**.
 """
-@compat abstract type MarginLoss <: SupervisedLoss end
+abstract type MarginLoss <: SupervisedLoss end
 
 
 """
@@ -42,7 +42,7 @@ A supervised loss that can be simplified to
 `L(targets, outputs) = L(targets - outputs)` is considered
 distance-based.
 """
-@compat abstract type DistanceLoss <: SupervisedLoss end
+abstract type DistanceLoss <: SupervisedLoss end
 
 """
 A loss is considered **unsupervised**, if all the information needed
@@ -50,9 +50,9 @@ to compute `L(features, targets, outputs)` are contained in
 `features` and `outputs`, and thus allows for the simplification
 `L(features, outputs)`.
 """
-@compat abstract type UnsupervisedLoss <: Loss end
+abstract type UnsupervisedLoss <: Loss end
 
-@compat abstract type Penalty <: Cost end
+abstract type Penalty <: Cost end
 
 function scaled end
 
@@ -104,9 +104,9 @@ Anything that takes an input and performs some kind
 of function to produce an output. For example a linear
 prediction function.
 """
-@compat abstract type Transformation end
-@compat abstract type StochasticTransformation <: Transformation end
-@compat abstract type Learnable <: Transformation end
+abstract type Transformation end
+abstract type StochasticTransformation <: Transformation end
+abstract type Learnable <: Transformation end
 
 function transform end
 "Do a forward pass, and return the output"
@@ -117,7 +117,7 @@ Baseclass for any prediction model that can be minimized.
 This means that an object of a subclass contains all the
 information needed to compute its own current loss.
 """
-@compat abstract type Minimizable <: Learnable end
+abstract type Minimizable <: Learnable end
 
 function update end
 function update! end
@@ -214,7 +214,7 @@ individual observation-vectors instead of one matrix.
 
 see `MLDataPattern.ObsView` and `MLDataPattern.BatchView` for examples.
 """
-@compat abstract type DataView{TElem, TData} <: AbstractVector{TElem} end
+abstract type DataView{TElem, TData} <: AbstractVector{TElem} end
 
 """
     abstract AbstractObsView{TElem, TData} <: DataView{TElem, TData}
@@ -224,7 +224,7 @@ that views it as some form or vector of observations.
 
 see `MLDataPattern.ObsView` for a concrete example.
 """
-@compat abstract type AbstractObsView{TElem, TData} <: DataView{TElem, TData} end
+abstract type AbstractObsView{TElem, TData} <: DataView{TElem, TData} end
 
 """
     abstract AbstractBatchView{TElem, TData} <: DataView{TElem, TData}
@@ -234,7 +234,7 @@ that views it as some form or vector of equally sized batches.
 
 see `MLDataPattern.BatchView` for a concrete example.
 """
-@compat abstract type AbstractBatchView{TElem, TData} <: DataView{TElem, TData} end
+abstract type AbstractBatchView{TElem, TData} <: DataView{TElem, TData} end
 
 # --------------------------------------------------------------------
 
@@ -251,7 +251,7 @@ true amount of observations available (if known).
 
 see `MLDataPattern.RandomObs`, `MLDataPattern.RandomBatches`
 """
-@compat abstract type DataIterator{TElem,TData} end
+abstract type DataIterator{TElem,TData} end
 
 """
     abstract ObsIterator{TElem,TData} <: DataIterator{TElem,TData}
@@ -270,7 +270,7 @@ end
 
 see `MLDataPattern.RandomObs`
 """
-@compat abstract type ObsIterator{TElem,TData} <: DataIterator{TElem,TData} end
+abstract type ObsIterator{TElem,TData} <: DataIterator{TElem,TData} end
 
 """
     abstract BatchIterator{TElem,TData} <: DataIterator{TElem,TData}
@@ -289,14 +289,14 @@ end
 
 see `MLDataPattern.RandomBatches`
 """
-@compat abstract type BatchIterator{TElem,TData} <: DataIterator{TElem,TData} end
+abstract type BatchIterator{TElem,TData} <: DataIterator{TElem,TData} end
 
 # --------------------------------------------------------------------
 
 # just for dispatch for those who care to
-@compat const AbstractDataIterator{E,T}  = Union{DataIterator{E,T}, DataView{E,T}}
-@compat const AbstractObsIterator{E,T}   = Union{ObsIterator{E,T},  AbstractObsView{E,T}}
-@compat const AbstractBatchIterator{E,T} = Union{BatchIterator{E,T},AbstractBatchView{E,T}}
+const AbstractDataIterator{E,T}  = Union{DataIterator{E,T}, DataView{E,T}}
+const AbstractObsIterator{E,T}   = Union{ObsIterator{E,T},  AbstractObsView{E,T}}
+const AbstractBatchIterator{E,T} = Union{BatchIterator{E,T},AbstractBatchView{E,T}}
 
 # --------------------------------------------------------------------
 
@@ -324,7 +324,7 @@ function default_obsdim end
 
 # just for dispatch for those who care to
 "see `?ObsDim`"
-@compat abstract type ObsDimension end
+abstract type ObsDimension end
 
 """
     module ObsDim
@@ -345,21 +345,21 @@ module ObsDim
     Default value for most functions. Denotes that the concept of
     an observation dimension is not defined for the given data.
     """
-    immutable Undefined <: ObsDimension end
+    struct Undefined <: ObsDimension end
 
     """
         ObsDim.Last <: ObsDimension
 
     Defines that the last dimension denotes the observations
     """
-    immutable Last <: ObsDimension end
+    struct Last <: ObsDimension end
 
     """
         ObsDim.Constant{DIM} <: ObsDimension
 
     Defines that the dimension `DIM` denotes the observations
     """
-    immutable Constant{DIM} <: ObsDimension end
+    struct Constant{DIM} <: ObsDimension end
     Constant(dim::Int) = Constant{dim}()
 
     """
@@ -372,7 +372,7 @@ end
 
 Base.convert(::Type{ObsDimension}, dim) = throw(ArgumentError("Unknown way to specify a obsdim: $dim"))
 Base.convert(::Type{ObsDimension}, dim::ObsDimension) = dim
-Base.convert(::Type{ObsDimension}, ::Void) = ObsDim.Undefined()
+Base.convert(::Type{ObsDimension}, ::Nothing) = ObsDim.Undefined()
 Base.convert(::Type{ObsDimension}, dim::Int) = ObsDim.Constant(dim)
 Base.convert(::Type{ObsDimension}, dim::String) = convert(ObsDimension, Symbol(lowercase(dim)))
 Base.convert(::Type{ObsDimension}, dims::Tuple) = map(d->convert(ObsDimension, d), dims)
@@ -388,8 +388,6 @@ function Base.convert(::Type{ObsDimension}, dim::Symbol)
     end
 end
 
-@deprecate obs_dim(dim) convert(ObsDimension, dim)
-
 default_obsdim(data) = ObsDim.Undefined()
 default_obsdim(A::AbstractArray) = ObsDim.Last()
 default_obsdim(tup::Tuple) = map(default_obsdim, tup)
@@ -398,30 +396,30 @@ default_obsdim(tup::Tuple) = map(default_obsdim, tup)
 import Base: AbstractSet
 
 "A continuous range (inclusive) between a lo and a hi"
-immutable IntervalSet{T} <: AbstractSet{T}
+struct IntervalSet{T} <: AbstractSet{T}
     lo::T
     hi::T
 end
-function IntervalSet{A,B}(lo::A, hi::B)
+function IntervalSet(lo::A, hi::B) where {A,B}
     T = promote_type(A,B)
     IntervalSet{T}(convert(T,lo), convert(T,hi))
 end
 
 # numeric interval
-randtype{T<:Number}(s::IntervalSet{T}) = Float64
-Base.rand{T<:Number}(s::IntervalSet{T}, dims::Integer...) = rand(dims...) * (s.hi - s.lo) + s.lo
-Base.in{T<:Number}(x::Number, s::IntervalSet{T}) = s.lo <= x <= s.hi
-Base.length{T<:Number}(s::IntervalSet{T}) = 1
+randtype(s::IntervalSet{<:Number}) = Float64
+Base.rand(s::IntervalSet{<:Number}, dims::Integer...) = rand(dims...) .* (s.hi .- s.lo) .+ s.lo
+Base.in(x::Number, s::IntervalSet{<:Number}) = s.lo <= x <= s.hi
+Base.length(s::IntervalSet{<:Number}) = 1
 
 # vector of intervals
-randtype{T<:AbstractVector}(s::IntervalSet{T}) = Vector{Float64}
-Base.rand{T<:AbstractVector}(s::IntervalSet{T}) = Float64[rand() * (s.hi[i] - s.lo[i]) + s.lo[i] for i=1:length(s)]
-Base.in{T<:AbstractVector}(x::AbstractVector, s::IntervalSet{T}) = all(i -> s.lo[i] <= x[i] <= s.hi[i], 1:length(s))
-Base.length{T<:AbstractVector}(s::IntervalSet{T}) = length(s.lo)
+randtype(s::IntervalSet{<:AbstractVector}) = Vector{Float64}
+Base.rand(s::IntervalSet{<:AbstractVector}) = Float64[rand() * (s.hi[i] - s.lo[i]) + s.lo[i] for i=1:length(s)]
+Base.in(x::AbstractVector, s::IntervalSet{<:AbstractVector}) = all(i -> s.lo[i] <= x[i] <= s.hi[i], 1:length(s))
+Base.length(s::IntervalSet{<:AbstractVector}) = length(s.lo)
 
 
 "Set of discrete items"
-immutable DiscreteSet{T<:AbstractArray} <: AbstractSet{T}
+struct DiscreteSet{T<:AbstractArray} <: AbstractSet{T}
     items::T
 end
 randtype(s::DiscreteSet) = eltype(s.items)
@@ -432,22 +430,26 @@ Base.getindex(s::DiscreteSet, i::Int) = s.items[i]
 
 
 # operations on arrays of sets
-randtype{S<:AbstractSet,N}(sets::AbstractArray{S,N}) = Array{promote_type(map(randtype, sets)...), N}
-Base.rand{S<:AbstractSet}(sets::AbstractArray{S}) = eltype(randtype(sets))[rand(s) for s in sets]
-function Base.rand{S<:AbstractSet}(sets::AbstractArray{S}, dim1::Integer, dims::Integer...)
-    A = Array{randtype(sets)}(dim1, dims...)
+function randtype(sets::AbstractArray{S,N}) where {S<:AbstractSet, N}
+    Array{promote_type(map(randtype, sets)...), N}
+end
+function Base.rand(sets::AbstractArray{S}) where {S<:AbstractSet}
+    eltype(randtype(sets))[rand(s) for s in sets]
+end
+function Base.rand(sets::AbstractArray{S}, dim1::Integer, dims::Integer...) where {S<:AbstractSet}
+    A = Array{randtype(sets)}(uninitialized, dim1, dims...)
     for i in eachindex(A)
         A[i] = rand(sets)
     end
     A
 end
-function Base.in{S<:AbstractSet}(xs::AbstractArray, sets::AbstractArray{S})
+function Base.in(xs::AbstractArray, sets::AbstractArray{S}) where {S<:AbstractSet}
     size(xs) == size(sets) && all(map(in, xs, sets))
 end
 
 
 "Groups several heterogenous sets. Used mainly for proper dispatch."
-immutable TupleSet{T<:Tuple} <: AbstractSet{T}
+struct TupleSet{T<:Tuple} <: AbstractSet{T}
     sets::T
 end
 TupleSet(sets::AbstractSet...) = TupleSet(sets)
@@ -457,8 +459,8 @@ randtype(sets::TupleSet, ::Type{Vector}) = Vector{promote_type(map(randtype, set
 Base.rand(sets::TupleSet, ::Type{Vector}) = eltype(randtype(sets, Vector))[rand(s) for s in sets.sets]
 randtype(sets::TupleSet, ::Type{Tuple}) = Tuple{map(randtype, sets.sets)...}
 Base.rand(sets::TupleSet, ::Type{Tuple}) = map(rand, sets.sets)
-function Base.rand{OT}(sets::TupleSet, ::Type{OT}, dim1::Integer, dims::Integer...)
-    A = Array{randtype(sets, OT)}(dim1, dims...)
+function Base.rand(sets::TupleSet, ::Type{OT}, dim1::Integer, dims::Integer...) where {OT}
+    A = Array{randtype(sets, OT)}(uninitialized, dim1, dims...)
     for i in eachindex(A)
         A[i] = rand(sets, OT)
     end
