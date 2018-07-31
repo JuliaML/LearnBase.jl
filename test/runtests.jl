@@ -285,9 +285,6 @@ end
     @test convert(LearnBase.ObsDimension, :null) === ObsDim.Undefined()
     @test convert(LearnBase.ObsDimension, :undefined) === ObsDim.Undefined()
     @test convert(LearnBase.ObsDimension, nothing) === ObsDim.Undefined()
-
-    # TODO: remove test after deprecation phase
-    @test LearnBase.obs_dim(:last) === ObsDim.Last()
 end
 
 struct SomeType end
