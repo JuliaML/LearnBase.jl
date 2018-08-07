@@ -1,5 +1,3 @@
-__precompile__(true)
-
 module LearnBase
 
 # Only reexport required functions by default
