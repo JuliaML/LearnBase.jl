@@ -331,7 +331,7 @@ Singleton types to define which dimension of some data structure
 
 - `ObsDim.First()`
 - `ObsDim.Last()`
-- `ObsDim.Contant(dim)`
+- `ObsDim.Constant(dim)`
 
 Used for efficient dispatching
 """
