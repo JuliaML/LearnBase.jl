@@ -1,6 +1,6 @@
 name = "LearnBase"
-uuid = "553a3efa-3f4c-4899-931a-92df696021e0"
-version = "0.2.3"
+uuid = "30fc2ffe-d236-52d8-8643-a9d8f7c094a7"
+version = "0.5.2"
 
 [deps]
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
