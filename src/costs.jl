@@ -78,7 +78,7 @@ L : Y \times \mathbb{R} \rightarrow [0,\infty)
 value(loss::SupervisedLoss, target::Number, output::Number) =
     MethodError(value, (loss, target, output))
 
-"""
+@doc doc"""
     value(loss, targets, outputs, aggmode) -> Number
 
 Compute the weighted or unweighted sum or mean (depending on
@@ -103,7 +103,7 @@ dimensions they share.
 value(loss::SupervisedLoss, targets::AbstractArray, outputs::AbstractArray, aggmode::AggregateMode) =
     MethodError(value, (loss, targets, outputs, aggmode))
 
-"""
+@doc doc"""
     value(loss, targets, outputs, aggmode, obsdim) -> AbstractVector
 
 Compute the values of the `loss` function for each pair in
@@ -130,7 +130,37 @@ not be vectors).
 value(loss::SupervisedLoss, targets::AbstractArray, outputs::AbstractArray,
       aggmode::AggregateMode, obsdim::ObsDimension) =
     MethodError(value, (loss, targets, outputs, aggmode, obsdim))
-    
+
+@doc doc"""
+    value!(buffer, loss, targets, outputs, aggmode, obsdim) -> buffer
+
+Compute the values of the `loss` function for each pair in
+`targets` and `outputs` individually, and return either the
+weighted or unweighted sum or mean for each observation,
+depending on `aggmode`. The results are stored into the given
+vector `buffer`. This method will not allocate a temporary array.
+
+Both arrays have to be of the same shape and size. Furthermore
+they have to have at least two array dimensions (i.e. so they
+must not be vectors).
+
+# Arguments
+
+- `buffer::AbstractArray`: Array to store the computed values in.
+  Old values will be overwritten and lost.
+- `loss::SupervisedLoss`: The loss-function ``L`` we are working with.
+- `targets::AbstractArray`: The array of ground truths ``\\mathbf{y}``.
+- `outputs::AbstractArray`: The array of predicted outputs ``\\mathbf{\\hat{y}}``.
+- `aggmode::AggregateMode`: Must be one of the following: [`AggMode.Sum()`](@ref),
+  [`AggMode.Mean()`](@ref), [`AggMode.WeightedSum`](@ref), or
+  [`AggMode.WeightedMean`](@ref).
+- `obsdim::ObsDimension`: Specifies which of the array dimensions
+  denotes the observations. see `?ObsDim` for more information.
+"""
+value!(buffer::AbstractArray, loss::SupervisedLoss, targets::AbstractArray, outputs::AbstractArray,
+       aggmode::AggregateMode, obsdim::ObsDimension) =
+    MethodError(value!, (buffer, loss, targets, outputs, aggmode, obsdim))
+
 function deriv end
 function deriv2 end
 function value_deriv end
