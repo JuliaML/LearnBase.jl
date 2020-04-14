@@ -1,7 +1,5 @@
 module LearnBase
 
-using Markdown # for docstrings
-
 # AGGREGATION MODES
 include("aggmode.jl")
 
