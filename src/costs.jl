@@ -21,16 +21,16 @@ abstract type SupervisedLoss <: Loss end
 
 @doc doc"""
 A supervised loss is considered **unary** if it can be written as a composition
-`L(Ψ(output, target))` for some binary function `Ψ`. In this case the loss can
-be evaluated with a single argument termed the **agreement** `Ψ(output, target)`.
-Notable examples for unary supervised losses are distance-based (`Ψ(ŷ,y) = ŷ - y`)
-and margin-based (`Ψ(ŷ,y) = ŷ*y`) losses.
+`L(Ψ(target, output))` for some binary function `Ψ`. In this case the loss can
+be evaluated with a single argument termed the **agreement** `Ψ(target, output)`.
+Notable examples for unary supervised losses are distance-based (`Ψ(y,ŷ) = ŷ - y`)
+and margin-based (`Ψ(y,ŷ) = ŷ*y`) losses.
 """
 abstract type UnarySupervisedLoss <: SupervisedLoss end
 
 @doc doc"""
 A supervised loss that can be simplified to
-`L(targets, outputs) = L(targets - outputs)` is considered
+`L(targets, outputs) = L(outputs - targets)` is considered
 **distance-based**.
 """
 abstract type DistanceLoss <: UnarySupervisedLoss end
@@ -55,16 +55,89 @@ Baseclass for all penalties.
 """
 abstract type Penalty <: Cost end
 
-function value end
-function value! end
+@doc doc"""
+    value(loss, target, output)
 
+Compute the (non-negative) numeric result for the `loss` function
+return it. Note that `target` and `output` can be of different
+numeric type, in which case promotion is performed in the manner
+appropriate for the given loss.
+
+```math
+L : Y \times \mathbb{R} \rightarrow [0,\infty)
+```
+
+# Arguments
+
+- `loss::SupervisedLoss`: The loss-function ``L`` we want to
+  compute the value with.
+- `target::Number`: The ground truth ``y \in Y`` of the observation.
+- `output::Number`: The predicted output ``\hat{y} \in \mathbb{R}``
+  for the observation.
+"""
+value(loss::SupervisedLoss, target::Number, output::Number) =
+    MethodError(value, (loss, target, output))
+
+"""
+    value(loss, targets, outputs, aggmode) -> Number
+
+Compute the weighted or unweighted sum or mean (depending on
+aggregation mode `aggmode`) of the individual values of the `loss`
+function for each pair in `targets` and `outputs`. This method
+will not allocate a temporary array.
+
+In the case that the two parameters are arrays with a different
+number of dimensions, broadcast will be performed. Note that the
+given parameters are expected to have the same size in the
+dimensions they share.
+
+# Arguments
+
+- `loss::SupervisedLoss`: The loss-function ``L`` we are working with.
+- `targets::AbstractArray`: The array of ground truths ``\\mathbf{y}``.
+- `outputs::AbstractArray`: The array of predicted outputs ``\\mathbf{\\hat{y}}``.
+- `aggmode::AggregateMode`: Must be one of the following: [`AggMode.Sum()`](@ref),
+  [`AggMode.Mean()`](@ref), [`AggMode.WeightedSum`](@ref), or
+  [`AggMode.WeightedMean`](@ref).
+"""
+value(loss::SupervisedLoss, targets::AbstractArray, outputs::AbstractArray, aggmode::AggregateMode) =
+    MethodError(value, (loss, targets, outputs, aggmode))
+
+"""
+    value(loss, targets, outputs, aggmode, obsdim) -> AbstractVector
+
+Compute the values of the `loss` function for each pair in
+`targets` and `outputs` individually, and return either the
+weighted or unweighted sum or mean for each observation (depending on
+`aggmode`). This method will not allocate a temporary array, but
+it will allocate the resulting vector.
+
+Both arrays have to be of the same shape and size. Furthermore
+they have to have at least two array dimensions (i.e. they must
+not be vectors).
+
+# Arguments
+
+- `loss::SupervisedLoss`: The loss-function ``L`` we are working with.
+- `targets::AbstractArray`: The array of ground truths ``\\mathbf{y}``.
+- `outputs::AbstractArray`: The array of predicted outputs ``\\mathbf{\\hat{y}}``.
+- `aggmode::AggregateMode`: Must be one of the following: [`AggMode.Sum()`](@ref),
+  [`AggMode.Mean()`](@ref), [`AggMode.WeightedSum`](@ref), or
+  [`AggMode.WeightedMean`](@ref).
+- `obsdim::ObsDimension`: Specifies which of the array dimensions
+  denotes the observations. see `?ObsDim` for more information.
+"""
+value(loss::SupervisedLoss, targets::AbstractArray, outputs::AbstractArray,
+      aggmode::AggregateMode, obsdim::ObsDimension) =
+    MethodError(value, (loss, targets, outputs, aggmode, obsdim))
+    
 function deriv end
-function deriv! end
-
 function deriv2 end
-function deriv2! end
-
 function value_deriv end
+
+function value! end
+function deriv! end
+function deriv2! end
 function value_deriv! end
 
 @doc doc"""
