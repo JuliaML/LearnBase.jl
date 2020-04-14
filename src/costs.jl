@@ -253,7 +253,76 @@ deriv!(buffer::AbstractArray, loss::SupervisedLoss, targets::AbstractArray, outp
        aggmode::AggregateMode, obsdim::ObsDimension) =
     MethodError(deriv!, (buffer, loss, targets, outputs, aggmode, obsdim))
 
-function deriv2 end
+"""
+    deriv2(loss, target, output) -> Number
+
+Compute the second derivative for the `loss` function
+in respect to the `output`. Note that `target` and `output`
+can be of different numeric type, in which case promotion is
+performed in the manner appropriate for the given loss.
+
+# Arguments
+
+- `loss::SupervisedLoss`: The loss function `L` we want to compute.
+- `target::Number`: The ground truth `y ∈ Y` of the observation.
+- `output::Number`: The predicted output `ŷ ∈ ℝ` for the observation.
+"""
+deriv2(loss::SupervisedLoss, target::Number, output::Number) =
+    MethodError(deriv2, (loss, target, output))
+
+"""
+    deriv2(loss, targets, outputs, aggmode) -> Number
+
+Compute the weighted or unweighted sum or mean (depending on `aggmode`)
+of the individual second derivatives of the `loss` function for
+each pair in `targets` and `outputs`. This method will not
+allocate a temporary array.
+
+In the case that the two parameters are arrays with a different
+number of dimensions, broadcast will be performed. Note that the
+given parameters are expected to have the same size in the
+dimensions they share.
+
+# Arguments
+
+- `loss::SupervisedLoss`: The loss function `L` we want to compute.
+- `targets::AbstractArray`: The array of ground truths `𝐲`.
+- `outputs::AbstractArray`: The array of predicted outputs `𝐲̂`.
+- `aggmode::AggregateMode`: Must be one of the following:
+  [`AggMode.Sum()`](@ref), [`AggMode.Mean()`](@ref),
+  [`AggMode.WeightedSum`](@ref), or [`AggMode.WeightedMean`](@ref).
+"""
+deriv2(loss::SupervisedLoss, targets::AbstractArray, outputs::AbstractArray, aggmode::AggregateMode) =
+    MethodError(deriv2, (loss, targets, outputs, aggmode))
+
+"""
+    deriv2(loss, targets, outputs, aggmode, obsdim) -> AbstractVector
+
+Compute the second derivative of the `loss` function for each pair in
+`targets` and `outputs` individually, and return either the
+weighted or unweighted sum or mean for each observation (depending on
+`aggmode`). This method will not allocate a temporary array, but
+it will allocate the resulting vector.
+
+Both arrays have to be of the same shape and size. Furthermore
+they have to have at least two array dimensions (i.e. they must
+not be vectors).
+
+# Arguments
+
+- `loss::SupervisedLoss`: The loss function `L` we want to compute.
+- `targets::AbstractArray`: The array of ground truths `𝐲`.
+- `outputs::AbstractArray`: The array of predicted outputs `𝐲̂`.
+- `aggmode::AggregateMode`: Must be one of the following:
+  [`AggMode.Sum()`](@ref), [`AggMode.Mean()`](@ref),
+  [`AggMode.WeightedSum`](@ref), or [`AggMode.WeightedMean`](@ref).
+- `obsdim::ObsDimension`: Specifies which of the array dimensions
+  denotes the observations. See `?ObsDim` for more information.
+"""
+deriv2(loss::SupervisedLoss, targets::AbstractArray, outputs::AbstractArray,
+       aggmode::AggregateMode, obsdim::ObsDimension) =
+    MethodError(deriv2, (loss, targets, outputs, aggmode, obsdim))
+
 function deriv2! end
 function value_deriv end
 function value_deriv! end
