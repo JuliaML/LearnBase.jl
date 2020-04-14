@@ -1,3 +1,8 @@
+# dummy types for testing
+struct MyStronglyConvexType end
+LearnBase.isstronglyconvex(::MyStronglyConvexType) = true
+LearnBase.islipschitzcont(::MyStronglyConvexType) = true
+
 @testset "Costs" begin
     @test LearnBase.Cost <: Any
     @test LearnBase.Penalty <: LearnBase.Cost
@@ -33,9 +38,6 @@
     @test typeof(LearnBase.issymmetric) <: Function
 
     # test fallback methods
-    struct MyStronglyConvexType end
-    LearnBase.isstronglyconvex(::MyStronglyConvexType) = true
-    LearnBase.islipschitzcont(::MyStronglyConvexType) = true
     @test LearnBase.isstronglyconvex(MyStronglyConvexType())
     @test LearnBase.isstrictlyconvex(MyStronglyConvexType())
     @test LearnBase.isconvex(MyStronglyConvexType())
