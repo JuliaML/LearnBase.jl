@@ -351,9 +351,6 @@ deriv2!(buffer::AbstractArray, loss::SupervisedLoss, targets::AbstractArray, out
         aggmode::AggregateMode, obsdim::ObsDimension) =
     MethodError(deriv2!, (buffer, loss, targets, outputs, aggmode, obsdim))
 
-function value_deriv end
-function value_deriv! end
-
 """
     isconvex(loss::SupervisedLoss) -> Bool
 

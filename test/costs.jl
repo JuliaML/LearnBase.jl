@@ -19,8 +19,6 @@ LearnBase.islipschitzcont(::MyStronglyConvexType) = true
     @test typeof(LearnBase.deriv!) <: Function
     @test typeof(LearnBase.deriv2) <: Function
     @test typeof(LearnBase.deriv2!) <: Function
-    @test typeof(LearnBase.value_deriv) <: Function
-    @test typeof(LearnBase.value_deriv!) <: Function
 
     @test typeof(LearnBase.isminimizable) <: Function
     @test typeof(LearnBase.isdifferentiable) <: Function
