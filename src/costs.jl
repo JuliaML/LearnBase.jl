@@ -165,7 +165,6 @@ function deriv end
 function deriv2 end
 function value_deriv end
 
-function value! end
 function deriv! end
 function deriv2! end
 function value_deriv! end
