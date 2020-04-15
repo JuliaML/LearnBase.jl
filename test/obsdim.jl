@@ -1,3 +1,4 @@
+struct SomeType end
 @testset "ObsDim" begin
     @testset "Type tree" begin
         @test_throws MethodError LearnBase.ObsDim.Constant(2.0)
@@ -46,7 +47,6 @@
         @test convert(LearnBase.ObsDimension, nothing) === LearnBase.ObsDim.Undefined()
     end
 
-    struct SomeType end
     @testset "Default values" begin
         @testset "Arrays, SubArrays, and Sparse Arrays" begin
             @test @inferred(LearnBase.default_obsdim(rand(10))) === LearnBase.ObsDim.Last()
