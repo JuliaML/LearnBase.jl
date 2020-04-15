@@ -1,5 +1,5 @@
 # dummy types for testing
-struct MyStronglyConvexType end
+struct MyStronglyConvexType <: LearnBase.SupervisedLoss end
 LearnBase.isstronglyconvex(::MyStronglyConvexType) = true
 LearnBase.islipschitzcont(::MyStronglyConvexType) = true
 
@@ -9,9 +9,8 @@ LearnBase.islipschitzcont(::MyStronglyConvexType) = true
     @test LearnBase.Loss <: LearnBase.Cost
     @test LearnBase.UnsupervisedLoss <: LearnBase.Loss
     @test LearnBase.SupervisedLoss <: LearnBase.Loss
-    @test LearnBase.UnarySupervisedLoss <: LearnBase.SupervisedLoss
-    @test LearnBase.MarginLoss <: LearnBase.UnarySupervisedLoss
-    @test LearnBase.DistanceLoss <: LearnBase.UnarySupervisedLoss
+    @test LearnBase.MarginLoss <: LearnBase.SupervisedLoss
+    @test LearnBase.DistanceLoss <: LearnBase.SupervisedLoss
 
     @test typeof(LearnBase.value) <: Function
     @test typeof(LearnBase.value!) <: Function

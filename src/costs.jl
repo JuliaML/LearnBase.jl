@@ -19,26 +19,17 @@ for the simplification `L(y, ŷ)`.
 abstract type SupervisedLoss <: Loss end
 
 """
-A supervised loss is considered **unary** if it can be written as a composition
-`L(β(y, ŷ))` for some binary function `β`. In this case the loss can be evaluated
-with a single argument termed the **agreement** `β(y, ŷ)`. Notable
-examples for unary supervised losses are distance-based (`L(y,ŷ) = ψ(ŷ - y)`)
-and margin-based (`L(y,ŷ) = ψ(y⋅ŷ)`) losses.
-"""
-abstract type UnarySupervisedLoss <: SupervisedLoss end
-
-"""
 A supervised loss that can be simplified to `L(y, ŷ) = L(ŷ - y)`
 is considered **distance-based**.
 """
-abstract type DistanceLoss <: UnarySupervisedLoss end
+abstract type DistanceLoss <: SupervisedLoss end
 
 """
 A supervised loss with targets `y ∈ {-1, 1}`, and which
 can be simplified to `L(y, ŷ) = L(y⋅ŷ)` is considered
 **margin-based**.
 """
-abstract type MarginLoss <: UnarySupervisedLoss end
+abstract type MarginLoss <: SupervisedLoss end
 
 """
 A loss is considered **unsupervised**, if all the information needed
@@ -352,27 +343,27 @@ deriv2!(buffer::AbstractArray, loss::SupervisedLoss, targets::AbstractArray, out
     MethodError(deriv2!, (buffer, loss, targets, outputs, aggmode, obsdim))
 
 """
-    isconvex(loss::SupervisedLoss) -> Bool
+    isconvex(loss) -> Bool
 
 Return `true` if the given `loss` denotes a convex function.
 A function `f: ℝⁿ → ℝ` is convex if its domain is a convex set
 and if for all `x, y` in that domain, with `θ` such that for
 `0 ≦ θ ≦ 1`, we have `f(θ x + (1 - θ) y) ≦ θ f(x) + (1 - θ) f(y)`.
 """
-isconvex(l) = isstrictlyconvex(l)
+isconvex(loss::SupervisedLoss) = isstrictlyconvex(loss)
 
 """
-    isstrictlyconvex(loss::SupervisedLoss) -> Bool
+    isstrictlyconvex(loss) -> Bool
 
 Return `true` if the given `loss` denotes a strictly convex function.
 A function `f : ℝⁿ → ℝ` is strictly convex if its domain is a convex
 set and if for all `x, y` in that domain where `x ≠ y`, with `θ` such
 that for `0 < θ < 1`, we have `f(θ x + (1 - θ) y) < θ f(x) + (1 - θ) f(y)`.
 """
-isstrictlyconvex(l) = isstronglyconvex(l)
+isstrictlyconvex(loss::SupervisedLoss) = isstronglyconvex(loss)
 
 """
-    isstronglyconvex(loss::SupervisedLoss) -> Bool
+    isstronglyconvex(loss) -> Bool
 
 Return `true` if the given `loss` denotes a strongly convex function.
 A function `f : ℝⁿ → ℝ` is `m`-strongly convex if its domain is a convex
@@ -383,10 +374,10 @@ for `0 ≤ θ ≤ 1`, we have
 In a more familiar setting, if the loss function is differentiable we have
 `(∇f(x) - ∇f(y))ᵀ (x - y) ≥ m | x - y |₂²`
 """
-isstronglyconvex(::SupervisedLoss) = false
+isstronglyconvex(loss::SupervisedLoss) = false
 
 """
-    isdifferentiable(loss::SupervisedLoss, [x::Number]) -> Bool
+    isdifferentiable(loss, [x]) -> Bool
 
 Return `true` if the given `loss` is differentiable
 (optionally limited to the given point `x` if specified).
@@ -400,11 +391,11 @@ it satisfies:
 A function is differentiable if its domain is open and it is
 differentiable at every point `x`.
 """
-isdifferentiable(l::SupervisedLoss) = istwicedifferentiable(l)
-isdifferentiable(l::SupervisedLoss, at) = isdifferentiable(l)
+isdifferentiable(loss::SupervisedLoss) = istwicedifferentiable(loss)
+isdifferentiable(loss::SupervisedLoss, at) = isdifferentiable(loss)
 
 """
-    istwicedifferentiable(loss::SupervisedLoss, [x::Number]) -> Bool
+    istwicedifferentiable(loss, [x]) -> Bool
 
 Return `true` if the given `loss` is differentiable
 (optionally limited to the given point `x` if specified).
@@ -416,11 +407,11 @@ derivative for `∇f` exists at `x`: `∇²f(x) = D∇f(x)`.
 A function is twice differentiable if its domain is open and it
 is twice differentiable at every point `x`.
 """
-istwicedifferentiable(::SupervisedLoss) = false
-istwicedifferentiable(l::SupervisedLoss, at) = istwicedifferentiable(l)
+istwicedifferentiable(loss::SupervisedLoss) = false
+istwicedifferentiable(loss::SupervisedLoss, at) = istwicedifferentiable(loss)
 
 """
-    islocallylipschitzcont(loss::SupervisedLoss) -> Bool
+    islocallylipschitzcont(loss) -> Bool
 
 Return `true` if the given `loss` function is locally-Lipschitz
 continous.
@@ -433,10 +424,11 @@ such that
 
 Every convex function is locally lipschitz continuous.
 """
-islocallylipschitzcont(l) = isconvex(l) || islipschitzcont(l)
+islocallylipschitzcont(loss::SupervisedLoss) =
+    isconvex(loss) || islipschitzcont(loss)
 
 """
-    islipschitzcont(loss::SupervisedLoss) -> Bool
+    islipschitzcont(loss) -> Bool
 
 Return `true` if the given `loss` function is Lipschitz continuous.
 
@@ -444,10 +436,10 @@ A supervised loss function `L : Y × ℝ → [0, ∞)` is Lipschitz continous,
 if there exists a finite constant `M < ∞` such that
 `|L(y, t) - L(y, t′)| ≤ M |t - t′|, ∀ (y, t) ∈ Y × ℝ`
 """
-islipschitzcont(::SupervisedLoss) = false
+islipschitzcont(loss::SupervisedLoss) = false
 
 """
-    isnemitski(loss::SupervisedLoss) -> Bool
+    isnemitski(loss) -> Bool
 
 Return `true` if the given `loss` denotes a Nemitski loss function.
 
@@ -458,10 +450,10 @@ increasing function `h : [0, ∞) → [0, ∞)` such that
 
 If a loss if locally lipsschitz continuous then it is a Nemitski loss.
 """
-isnemitski(l::SupervisedLoss) = islocallylipschitzcont(l)
+isnemitski(loss::SupervisedLoss) = islocallylipschitzcont(loss)
 
 """
-    isclipable(loss::SupervisedLoss) -> Bool
+    isclipable(loss) -> Bool
 
 Return `true` if the given `loss` function is clipable. A
 supervised loss `L : Y × ℝ → [0,∞)` can be clipped at `M > 0`
@@ -470,10 +462,10 @@ if, for all `(y,t) ∈ Y × ℝ`, `L(y, t̂) ≤ L(y, t)` where
 That is
 `t̂ = -M` if `t < -M`, `t̂ = t` if `t ∈ [-M, M]`, and `t = M` if `t > M`.
 """
-isclipable(::SupervisedLoss) = false
+isclipable(loss::SupervisedLoss) = false
 
 """
-    isdistancebased(loss::SupervisedLoss) -> Bool
+    isdistancebased(loss) -> Bool
 
 Return `true` if the given `loss` is a distance-based loss.
 
@@ -481,10 +473,11 @@ A supervised loss function `L : Y × ℝ → [0,∞)` is said to be
 distance-based, if there exists a representing function `ψ : ℝ → [0,∞)`
 satisfying `ψ(0) = 0` and `L(y, ŷ) = ψ (ŷ - y), (y, ŷ) ∈ Y × ℝ`.
 """
-isdistancebased(::SupervisedLoss) = false
+isdistancebased(loss::Loss) = false
+isdistancebased(loss::DistanceLoss) = true
 
 """
-    ismarginbased(loss::SupervisedLoss) -> Bool
+    ismarginbased(loss) -> Bool
 
 Return `true` if the given `loss` is a margin-based loss.
 
@@ -492,15 +485,16 @@ A supervised loss function `L : Y × ℝ → [0,∞)` is said to be
 margin-based, if there exists a representing function `ψ : ℝ → [0,∞)`
 satisfying `L(y, ŷ) = ψ(y⋅ŷ), (y, ŷ) ∈ Y × ℝ`.
 """
-ismarginbased(::SupervisedLoss) = false
+ismarginbased(loss::Loss) = false
+ismarginbased(loss::MarginLoss) = true
 
 """
-    isclasscalibrated(loss::SupervisedLoss) -> Bool
+    isclasscalibrated(loss) -> Bool
 """
-isclasscalibrated(::SupervisedLoss) = false
+isclasscalibrated(loss::SupervisedLoss) = false
 
 """
-    issymmetric(loss::SupervisedLoss) -> Bool
+    issymmetric(loss) -> Bool
 
 Return `true` if the given loss is a symmetric loss.
 
@@ -510,11 +504,11 @@ about origin if we have `f(x) = f(-x), ∀ x ∈ ℝ`.
 A distance-based loss is said to be symmetric if its
 representing function is symmetric.
 """
-issymmetric(::SupervisedLoss) = false
+issymmetric(loss::SupervisedLoss) = false
 
 """
-    isminimizable(loss::SupervisedLoss) -> Bool
+    isminimizable(loss) -> Bool
 
 Return `true` if the given `loss` is a minimizable loss.
 """
-isminimizable(l) = isconvex(l)
+isminimizable(loss::SupervisedLoss) = isconvex(loss)
