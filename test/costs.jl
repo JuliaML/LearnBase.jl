@@ -28,10 +28,12 @@ LearnBase.islipschitzcont(::MyStronglyConvexType) = true
     @test typeof(LearnBase.isnemitski) <: Function
     @test typeof(LearnBase.islipschitzcont) <: Function
     @test typeof(LearnBase.islocallylipschitzcont) <: Function
+    @test typeof(LearnBase.isfishercons) <: Function
+    @test typeof(LearnBase.isunivfishercons) <: Function
     @test typeof(LearnBase.isclipable) <: Function
     @test typeof(LearnBase.ismarginbased) <: Function
-    @test typeof(LearnBase.isclasscalibrated) <: Function
     @test typeof(LearnBase.isdistancebased) <: Function
+    @test typeof(LearnBase.isclasscalibrated) <: Function
     @test typeof(LearnBase.issymmetric) <: Function
 
     # test fallback methods

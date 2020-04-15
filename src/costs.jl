@@ -451,6 +451,17 @@ increasing function `h : [0, ∞) → [0, ∞)` such that
 If a loss if locally lipsschitz continuous then it is a Nemitski loss.
 """
 isnemitski(loss::SupervisedLoss) = islocallylipschitzcont(loss)
+isnemitski(loss::MarginLoss) = true
+
+"""
+    isunivfishercons(loss) -> Bool
+"""
+isunivfishercons(loss::Loss) = false
+
+"""
+    isfishercons(loss) -> Bool
+"""
+isfishercons(loss::Loss) = isunivfishercons(loss)
 
 """
     isclipable(loss) -> Bool
@@ -463,6 +474,7 @@ That is
 `t̂ = -M` if `t < -M`, `t̂ = t` if `t ∈ [-M, M]`, and `t = M` if `t > M`.
 """
 isclipable(loss::SupervisedLoss) = false
+isclipable(loss::DistanceLoss) = true # can someone please double check?
 
 """
     isdistancebased(loss) -> Bool
@@ -492,6 +504,8 @@ ismarginbased(loss::MarginLoss) = true
     isclasscalibrated(loss) -> Bool
 """
 isclasscalibrated(loss::SupervisedLoss) = false
+isclasscalibrated(loss::MarginLoss) =
+    isconvex(loss) && isdifferentiable(loss, 0) && deriv(loss, 0) < 0
 
 """
     issymmetric(loss) -> Bool
