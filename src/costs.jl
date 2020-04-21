@@ -82,8 +82,7 @@ to have at least two dimensions (i.e. they must not be vectors).
   `target` and `output`. Fallback implementations are available for other
   methods in `LossFunctions.jl`.
 """
-value(loss::SupervisedLoss, target::Number, output::Number) =
-    MethodError(value, (loss, target, output))
+function value end
 
 """
     value!(buffer, loss, targets, outputs, aggmode, obsdim) -> buffer
@@ -98,10 +97,7 @@ Both arrays have to be of the same shape and size. Furthermore
 they have to have at least two dimensions (i.e. so they must not
 be vectors).
 """
-value!(buffer::AbstractArray, loss::SupervisedLoss,
-       targets::AbstractArray, outputs::AbstractArray,
-       aggmode::AggregateMode, obsdim::ObsDimension) =
-    MethodError(value!, (buffer, loss, targets, outputs, aggmode, obsdim))
+function value! end
 
 """
     deriv(loss, target, output) -> Number
@@ -142,8 +138,7 @@ to have at least two dimensions (i.e. they must not be vectors).
   `target` and `output`. Fallback implementations are available for other
   methods in `LossFunctions.jl`.
 """
-deriv(loss::SupervisedLoss, target::Number, output::Number) =
-    MethodError(deriv, (loss, target, output))
+function deriv end
 
 """
     deriv!(buffer, loss, targets, outputs, aggmode, obsdim) -> buffer
@@ -158,10 +153,7 @@ Both arrays have to be of the same shape and size. Furthermore
 they have to have at least two array dimensions (i.e. so they
 must not be vectors).
 """
-deriv!(buffer::AbstractArray, loss::SupervisedLoss,
-       targets::AbstractArray, outputs::AbstractArray,
-       aggmode::AggregateMode, obsdim::ObsDimension) =
-    MethodError(deriv!, (buffer, loss, targets, outputs, aggmode, obsdim))
+function deriv! end
 
 """
     deriv2(loss, target, output) -> Number
@@ -202,8 +194,7 @@ to have at least two dimensions (i.e. they must not be vectors).
   `target` and `output`. Fallback implementations are available for other
   methods in `LossFunctions.jl`.
 """
-deriv2(loss::SupervisedLoss, target::Number, output::Number) =
-    MethodError(deriv2, (loss, target, output))
+function deriv2 end
 
 """
     deriv2!(buffer, loss, target, output, aggmode, obsdim) -> buffer
@@ -218,10 +209,7 @@ Both arrays have to be of the same shape and size. Furthermore
 they have to have at least two array dimensions (i.e. so they
 must not be vectors).
 """
-deriv2!(buffer::AbstractArray, loss::SupervisedLoss,
-        targets::AbstractArray, outputs::AbstractArray,
-        aggmode::AggregateMode, obsdim::ObsDimension) =
-    MethodError(deriv2!, (buffer, loss, targets, outputs, aggmode, obsdim))
+function deriv2! end
 
 """
     isconvex(loss) -> Bool
