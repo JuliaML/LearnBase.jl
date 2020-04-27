@@ -1,7 +1,14 @@
-"Return the gradient of the learnable parameters w.r.t. some objective"
+"""
+Return the gradient of the learnable parameters w.r.t. some objective
+"""
 function grad end
-"Do a backward pass, updating the gradients of learnable parameters and/or inputs"
 function grad! end
+
+"""
+Proximal operator of a function (https://en.wikipedia.org/wiki/Proximal_operator)
+"""
+function prox end
+function prox! end
 
 """
 Anything that takes an input and performs some kind
@@ -12,8 +19,10 @@ abstract type Transformation end
 abstract type StochasticTransformation <: Transformation end
 abstract type Learnable <: Transformation end
 
+"""
+Do a forward pass, and return the output
+"""
 function transform end
-"Do a forward pass, and return the output"
 function transform! end
 
 """
