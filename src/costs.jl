@@ -85,21 +85,6 @@ to have at least two dimensions (i.e. they must not be vectors).
 function value end
 
 """
-    value!(buffer, loss, targets, outputs, aggmode, obsdim) -> buffer
-
-Compute the values of the `loss` function for each pair in
-`targets` and `outputs` individually, and return either the
-weighted or unweighted sum or mean for each observation,
-depending on `aggmode`. The results are stored into the given
-vector `buffer`. This method will not allocate a temporary array.
-
-Both arrays have to be of the same shape and size. Furthermore
-they have to have at least two dimensions (i.e. so they must not
-be vectors).
-"""
-function value! end
-
-"""
     deriv(loss, target, output) -> Number
 
 Compute the analytical derivative with respect to the `output` for the
@@ -141,21 +126,6 @@ to have at least two dimensions (i.e. they must not be vectors).
 function deriv end
 
 """
-    deriv!(buffer, loss, targets, outputs, aggmode, obsdim) -> buffer
-
-Compute the derivative of the `loss` function for each pair in
-`targets` and `outputs` individually, and return either the
-weighted or unweighted sum or mean for each observation, depending on
-`aggmode`. The results are stored into the given vector `buffer`.
-This method will not allocate a temporary array.
-
-Both arrays have to be of the same shape and size. Furthermore
-they have to have at least two array dimensions (i.e. so they
-must not be vectors).
-"""
-function deriv! end
-
-"""
     deriv2(loss, target, output) -> Number
 
 Compute the second derivative with respect to the `output` for the
@@ -195,21 +165,6 @@ to have at least two dimensions (i.e. they must not be vectors).
   methods in `LossFunctions.jl`.
 """
 function deriv2 end
-
-"""
-    deriv2!(buffer, loss, target, output, aggmode, obsdim) -> buffer
-
-Compute the second derivative of the `loss` function for each pair in
-`targets` and `outputs` individually, and return either the
-weighted or unweighted sum or mean for each observation, depending on
-`aggmode`. The results are stored into the given vector `buffer`.
-This method will not allocate a temporary array.
-
-Both arrays have to be of the same shape and size. Furthermore
-they have to have at least two array dimensions (i.e. so they
-must not be vectors).
-"""
-function deriv2! end
 
 """
     isconvex(loss) -> Bool

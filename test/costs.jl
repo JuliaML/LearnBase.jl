@@ -13,11 +13,8 @@ LearnBase.islipschitzcont(::MyStronglyConvexType) = true
     @test LearnBase.DistanceLoss <: LearnBase.SupervisedLoss
 
     @test typeof(LearnBase.value) <: Function
-    @test typeof(LearnBase.value!) <: Function
     @test typeof(LearnBase.deriv) <: Function
-    @test typeof(LearnBase.deriv!) <: Function
     @test typeof(LearnBase.deriv2) <: Function
-    @test typeof(LearnBase.deriv2!) <: Function
 
     @test typeof(LearnBase.isminimizable) <: Function
     @test typeof(LearnBase.isdifferentiable) <: Function
