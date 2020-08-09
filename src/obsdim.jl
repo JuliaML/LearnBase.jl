@@ -1,3 +1,5 @@
+export ObsDim
+
 """
 Baseclass for all observation dimensions.
 """
