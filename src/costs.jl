@@ -284,6 +284,12 @@ isunivfishercons(loss::Loss) = false
 
 """
     isfishercons(loss) -> Bool
+
+Return `true` if the givel `loss` is Fisher consistent.
+
+We call a supervised loss function `L : Y × ℝ → [0,∞)` a Fisher
+consistent loss if the population minimizer of the risk `E[L(y,f(x))]`
+for all measurable functions leads to the Bayes optimal decision rule.
 """
 isfishercons(loss::Loss) = isunivfishercons(loss)
 
