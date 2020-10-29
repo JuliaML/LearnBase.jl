@@ -42,8 +42,7 @@ function datasubset end
 #
 # This function is implemented in MLDataPattern
 function getobs end
-# getobs(data, obsdim::Nothing) = getobs(data)
-getobs(data, idx, obsdim::Nothing) = getobs(data, idx)
+getobs(data, idx; obsdim = default_obsdim(data)) = getindex(data, idx)
 
 #    getobs!(buffer, data, [idx], [obsdim])
 #
@@ -64,10 +63,7 @@ getobs(data, idx, obsdim::Nothing) = getobs(data, idx)
 #
 # This function is implemented in MLDataPattern
 function getobs! end
-# getobs!(buffer, data, obsdim) = getobs(data; obsdim = obsdim)
-getobs!(buffer, data, idx, obsdim) = getobs(data, idx; obsdim = obsdim)
-# getobs!(buffer, data, obsdim::Nothing) = getobs!(buffer, data)
-getobs!(buffer, data, idx, obsdim::Nothing) = getobs!(buffer, data, idx)
+getobs!(buffer, data, idx; obsdim = default_obsdim(data)) = getobs(data, idx; obsdim = obsdim)
 
 # --------------------------------------------------------------------
 
