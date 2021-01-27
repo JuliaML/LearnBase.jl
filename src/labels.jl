@@ -11,19 +11,8 @@ const MatrixLabelEncoding{T,K} = LabelEncoding{T,K,2}
     nlabel(obj)::Int
 
 Returns the number of labels represented in the given object `obj`.
-
-# Examples
-```jldoctest
-julia> nlabel([:yes,:no,:yes,:yes])
-2
-```
 """
-nlabel(::Type{<:BinaryLabelEncoding}) = 2
-nlabel(::Type{LabelEncoding{T,K,M}}) where {T,K,M} = Int(K)
-nlabel(::Type{Any}) = throw(ArgumentError("number of labels could not be inferred for the given type"))
-nlabel(::Type{T}) where {T} = nlabel(supertype(T))
-nlabel(::LabelEncoding{T,K}) where {T,K} = Int(K)
-nlabel(itr) = length(label(itr))
+function nlabel end
 
 """
     label(obj)::Vector
@@ -32,51 +21,15 @@ Returns the labels represented in the given object `obj`.
 Note that the order of the labels matters.
 In the case of two labels, the first element represents the positive
 label and the second element the negative label.
-
-# Examples
-```jldoctest
-julia> label([:yes,:no,:yes,:yes])
-2-element Array{Symbol,1}:
-    :yes
-    :no
-```
 """
-label(itr) = _arrange_label(unique(itr))
-label(A::AbstractVector) = _arrange_label(unique(A))
-label(A::AbstractArray{T,N}) where {T,N} = throw(MethodError(label, (A,)))
-label(A::AbstractMatrix{<:Union{Number,Bool}}; obsdim = default_obsdim(A)) =
-    collect(1:size(A, obsdim))
-
-# make sure pos label is first
-_arrange_label(lbl::Vector) = lbl
-_arrange_label(lbl::Vector{<:Bool}) = [true,false]
-function _arrange_label(lbl::Vector{T}) where {T<:Number}
-    if length(lbl) == 2
-        if minimum(lbl) == 0 && maximum(lbl) == 1
-            lbl[1] = T(1)
-            lbl[2] = T(0)
-        elseif minimum(lbl) == -1 && maximum(lbl) == 1
-            lbl[1] = T(1)
-            lbl[2] = T(-1)
-        elseif minimum(lbl) == 1 && maximum(lbl) == 2
-            lbl[1] = T(1)
-            lbl[2] = T(2)
-        end
-    end
-    lbl
-end
+function label end
 
 """
     labeltype(::Type{<:LabelEncoding})
 
 Determine the type of the labels represented by the label encoding.
 """
-labeltype(::Type{MatrixLabelEncoding{T}}) where {T} = T
-labeltype(::Type{VectorLabelEncoding{T}}) where {T} = T
-labeltype(::Type{LabelEncoding{T,K,M}}) where {T,K,M} = T
-labeltype(::Type{Any}) = Any
-labeltype(::Type{T}) where {T} = labeltype(supertype(T))
-labeltype(lm::LabelEncoding{T}) where {T} = T
+function labeltype end
 
 """
     ind2label(index, encoding)
@@ -102,11 +55,7 @@ function label2ind end
 If the encoding is binary it will return the positive label of it.
 The function will throw an error otherwise.
 """
-function poslabel(values::AbstractArray)
-    lbl = label(values)
-    length(lbl) == 2 || throw(ArgumentError("The given object has more or less than two labels, thus poslabel is not defined."))
-    lbl[1]
-end
+function poslabel end
 
 """
     neglabel(encoding)
@@ -114,11 +63,7 @@ end
 If the encoding is binary it will return the negative label of it.
 The function will throw an error otherwise.
 """
-function neglabel(values::AbstractArray)
-    lbl = label(values)
-    length(lbl) == 2 || throw(ArgumentError("The given object has more or less than two labels, thus neglabel is not defined."))
-    lbl[2]
-end
+function neglabel end
 
 """
     labelenc(obj) -> LabelEncoding
