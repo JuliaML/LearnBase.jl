@@ -1,15 +1,20 @@
 """
     default_obsdim(data)
 
-The specify the default obsdim for a specific type of data.
-Defaults to `ObsDim.Undefined()`
+Specify the default observation dimension for `data`.
+Defaults to `nothing` when an observation dimension is undefined.
+
+The following default implementations are provided:
+- `default_obsdim(A::AbstractArray) = ndims(A)`
+- `default_obsdim(tup::Tuple) = map(default_obsdim, tup)`
 """
 default_obsdim(data) = nothing
+default_obsdim(::Type{<:AbstractArray{<:Any, N}}) where N = N
 default_obsdim(A::AbstractArray) = ndims(A)
 default_obsdim(tup::Tuple) = map(default_obsdim, tup)
 
 """
-     datasubset(data, [idx], [obsdim])
+     datasubset(data, idx; obsdim = default_obsdim(data))
 
 Return a lazy subset of the observations in `data` that correspond
 to the given `idx`. No data should be copied except of the
@@ -17,90 +22,87 @@ indices. Note that `idx` can be of type `Int` or `AbstractVector`.
 Both options must be supported by a custom type.
 
 If it makes sense for the type of `data`, `obsdim` can be used
-to disptach on which dimension of `data` denotes the observations.
-See `?ObsDim`.
+to indicate which dimension of `data` denotes the observations.
+See [`default_obsdim`](@ref) for defining a default dimension.
 """
 function datasubset end
 
-#    getobs(data, [idx], [obsdim])
-#
-# Return the observations corresponding to the observation-index
-# `idx`. Note that `idx` can be of type `Int` or `AbstractVector`.
-# Both options must be supported by a custom type.
-#
-# The returned observation(s) should be in the form intended to
-# be passed as-is to some learning algorithm. There is no strict
-# interface requirement on how this "actual data" must look like.
-# Every author behind some custom data container can make this
-# decision him-/herself. We do, however, expect it to be consistent
-# for `idx` being an integer, as well as `idx` being an abstract
-# vector, respectively.
-#
-# If it makes sense for the type of `data`, `obsdim` can be used
-# to disptach on which dimension of `data` denotes the observations.
-# See `?ObsDim`
-#
-# This function is implemented in MLDataPattern
-function getobs end
-getobs(data, idx; obsdim = default_obsdim(data)) = getindex(data, idx)
+"""
+   getobs(data, idx; obsdim = default_obsdim(data))
 
-#    getobs!(buffer, data, [idx], [obsdim])
-#
-# Inplace version of `getobs(data, idx, obsdim)`. If this method
-# is defined for the type of `data`, then `buffer` should be used
-# to store the result, instead of allocating a dedicated object.
-#
-# Implementing this function is optional. In the case no such
-# method is provided for the type of `data`, then `buffer` will be
-# *ignored* and the result of `getobs` returned. This could be
-# because the type of `data` may not lend itself to the concept
-# of `copy!`. Thus supporting a custom `getobs!(::MyType, ...)`
-# is optional and not required.
-#
-# If it makes sense for the type of `data`, `obsdim` can be used
-# to disptach on which dimension of `data` denotes the observations.
-# See `?ObsDim`
-#
-# This function is implemented in MLDataPattern
+Return the observations corresponding to the observation-index `idx`.
+Note that `idx` can be of type `Int` or `AbstractVector`.
+*Both options must be supported by a custom type.*
+
+The returned observation(s) should be in the form intended to
+be passed as-is to some learning algorithm. There is no strict
+interface requirement on how this "actual data" must look like.
+Every author behind some custom data container can make this
+decision himself/herself. We do, however, expect it to be consistent
+for `idx` being an integer, as well as `idx` being an abstract
+vector, respectively.
+
+If it makes sense for the type of `data`, `obsdim` can be used
+to indicate which dimension of `data` denotes the observations.
+See [`default_obsdim`](@ref) for defining a default dimension.
+"""
+function getobs end
+
+"""
+   getobs!(buffer, data, idx; obsdim = default_obsdim(obsdim))
+
+Inplace version of `getobs(data, idx; obsdim)`. If this method
+is defined for the type of `data`, then `buffer` should be used
+to store the result, instead of allocating a dedicated object.
+
+Implementing this function is optional. In the case no such
+method is provided for the type of `data`, then `buffer` will be
+*ignored* and the result of `getobs` returned. This could be
+because the type of `data` may not lend itself to the concept
+of `copy!`. Thus, supporting a custom `getobs!(::MyType, ...)`
+is optional and not required.
+
+If it makes sense for the type of `data`, `obsdim` can be used
+to indicate which dimension of `data` denotes the observations.
+See [`default_obsdim`](@ref) for defining a default dimension.
+"""
 function getobs! end
 getobs!(buffer, data, idx; obsdim = default_obsdim(data)) = getobs(data, idx; obsdim = obsdim)
 
 # --------------------------------------------------------------------
 
-#    gettarget([f], observation)
-#
-# Use `f` (if provided) to extract the target from the single
-# `observation` and return it. It is used internally by
-# `targets` (only if `f` is provided) and by
-# `eachtarget` (always) on each individual observation.
-#
-# Even though this function is not exported, it is intended to be
-# extended by users to support their custom data storage types.
-#
-# This function is implemented in MLDataPattern
-function gettarget end # not exported
+"""
+   gettarget([f], observation)
 
-#    gettargets(data, [idx], [obsdim])
-#
-# Return the targets corresponding to the observation-index `idx`.
-# Note that `idx` can be of type `Int` or `AbstractVector`.
-#
-# Implementing this function for a custom type of `data` is
-# optional. It is particularly useful if the targets in `data` can
-# be provided without invoking `getobs`. For example if you have a
-# remote data-source where the labels are part of some metadata
-# that is locally available.
-#
-# If it makes sense for the type of `data`, `obsdim` can be used
-# to disptach on which dimension of `data` denotes the observations.
-# See `?ObsDim`
-#
-# This function is implemented in MLDataPattern
-function gettargets end # not exported
+Use `f` (if provided) to extract the target from the single `observation` and return it.
+It is used internally by [`targets`](@ref) (only if `f` is provided)
+and by [`eachtarget`](@ref) (always) on each individual observation.
+"""
+function gettarget end
 
-#    targets([f], data, [obsdim])
-#
-# This function is implemented in MLDataPattern
+"""
+   gettargets(data, idx; obsdim = default_obsdim(data))
+
+Return the targets corresponding to the observation-index `idx`.
+Note that `idx` can be of type `Int` or `AbstractVector`.
+
+Implementing this function for a custom type of `data` is
+optional. It is particularly useful if the targets in `data` can
+be provided without invoking [`getobs`](@ref). For example if you have a
+remote data-source where the labels are part of some metadata
+that is locally available.
+
+If it makes sense for the type of `data`, `obsdim` can be used
+to indicate which dimension of `data` denotes the observations.
+See [`default_obsdim`](@ref) for defining a default dimension.
+"""
+function gettargets end
+
+"""
+   targets([f], data; obsdim = default_obsdim)
+
+???
+"""
 function targets end
 
 # --------------------------------------------------------------------
