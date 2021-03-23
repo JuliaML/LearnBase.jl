@@ -14,20 +14,6 @@ default_obsdim(A::AbstractArray) = ndims(A)
 default_obsdim(tup::Tuple) = map(default_obsdim, tup)
 
 """
-     datasubset(data, idx; obsdim = default_obsdim(data))
-
-Return a lazy subset of the observations in `data` that correspond
-to the given `idx`. No data should be copied except of the
-indices. Note that `idx` can be of type `Int` or `AbstractVector`.
-Both options must be supported by a custom type.
-
-If it makes sense for the type of `data`, `obsdim` can be used
-to indicate which dimension of `data` denotes the observations.
-See [`default_obsdim`](@ref) for defining a default dimension.
-"""
-function datasubset end
-
-"""
    getobs(data, idx; obsdim = default_obsdim(data))
 
 Return the observations corresponding to the observation-index `idx`.
@@ -47,6 +33,7 @@ to indicate which dimension of `data` denotes the observations.
 See [`default_obsdim`](@ref) for defining a default dimension.
 """
 function getobs end
+getobs(data, idx; obsdim) = getobs(data, idx)
 
 """
    getobs!(buffer, data, idx; obsdim = default_obsdim(obsdim))
