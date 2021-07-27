@@ -5,8 +5,6 @@
 
     @test typeof(LearnBase.transform) <: Function
     @test typeof(LearnBase.transform!) <: Function
-    @test typeof(LearnBase.getobs) <: Function
-    @test typeof(LearnBase.getobs!) <: Function
     @test typeof(LearnBase.learn) <: Function
     @test typeof(LearnBase.learn!) <: Function
     @test typeof(LearnBase.update) <: Function
@@ -16,42 +14,6 @@
     @test typeof(LearnBase.grad!) <: Function
     @test typeof(LearnBase.prox) <: Function
     @test typeof(LearnBase.prox!) <: Function
-
-    @test typeof(LearnBase.datasubset) <: Function
-
-    @test typeof(LearnBase.targets) <: Function
-    @test typeof(LearnBase.gettarget) <: Function
-    @test typeof(LearnBase.gettargets) <: Function
-
-    @test LearnBase.DataView <: AbstractVector
-    @test LearnBase.DataView <: LearnBase.AbstractDataIterator
-    @test LearnBase.DataView{Int} <: AbstractVector{Int}
-    @test LearnBase.DataView{Int,Vector{Int}} <: LearnBase.AbstractDataIterator{Int,Vector{Int}}
-    @test LearnBase.AbstractObsView <: LearnBase.DataView
-    @test LearnBase.AbstractObsView <: LearnBase.AbstractObsIterator
-    @test LearnBase.AbstractObsView{Int,Vector{Int}} <: LearnBase.DataView{Int,Vector{Int}}
-    @test LearnBase.AbstractObsView{Int,Vector{Int}} <: LearnBase.AbstractObsIterator{Int,Vector{Int}}
-    @test LearnBase.AbstractBatchView <: LearnBase.DataView
-    @test LearnBase.AbstractBatchView <: LearnBase.AbstractBatchIterator
-    @test LearnBase.AbstractBatchView{Int,Vector{Int}} <: LearnBase.DataView{Int,Vector{Int}}
-    @test LearnBase.AbstractBatchView{Int,Vector{Int}} <: LearnBase.AbstractBatchIterator{Int,Vector{Int}}
-
-    @test LearnBase.DataIterator <: LearnBase.AbstractDataIterator
-    @test LearnBase.DataIterator{Int,Vector{Int}} <: LearnBase.AbstractDataIterator{Int,Vector{Int}}
-    @test LearnBase.ObsIterator <: LearnBase.DataIterator
-    @test LearnBase.ObsIterator <: LearnBase.AbstractObsIterator
-    @test LearnBase.ObsIterator{Int,Vector{Int}} <: LearnBase.DataIterator{Int,Vector{Int}}
-    @test LearnBase.ObsIterator{Int,Vector{Int}} <: LearnBase.AbstractObsIterator{Int,Vector{Int}}
-    @test LearnBase.BatchIterator <: LearnBase.DataIterator
-    @test LearnBase.BatchIterator <: LearnBase.AbstractBatchIterator
-    @test LearnBase.BatchIterator{Int,Vector{Int}} <: LearnBase.DataIterator{Int,Vector{Int}}
-    @test LearnBase.BatchIterator{Int,Vector{Int}} <: LearnBase.AbstractBatchIterator{Int,Vector{Int}}
-
-    @test LearnBase.ObsDim.Constant <: LearnBase.ObsDimension
-    @test LearnBase.ObsDim.First <: LearnBase.ObsDimension
-    @test LearnBase.ObsDim.Last <: LearnBase.ObsDimension
-    @test LearnBase.ObsDim.Undefined <: LearnBase.ObsDimension
-    @test typeof(LearnBase.ObsDim.Constant(2)) <: LearnBase.ObsDim.Constant{2}
 
     # IntervalSet
     let s = LearnBase.IntervalSet(-1,1)
