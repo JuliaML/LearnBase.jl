@@ -62,7 +62,7 @@ LearnBase.getobs(t::Tuple, idx) = getobs.(t, Ref(idx))
 
 # Assume all elements have the same nummber of observations.
 # It would be safer to check explicitely though.
-StatsBase.nobs(t::Tuple) = nobs(t[1])
+LearnBase.nobs(t::Tuple) = nobs(t[1])
 
 # A dataset with 3 observations, each with 2 input features
 X, Y = rand(2, 3), rand(3)
