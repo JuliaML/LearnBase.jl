@@ -38,14 +38,15 @@ implement `StatsBase.nobs`.
 Let's see how to implement a dataset interface for a dataset
 represented by an array:
 ```julia
-using LearnBase, StatsBase
+using LearnBase
 
 function LearnBase.getobs(x::AbstractArray{T,N}, idx; obsdim=default_obsdim(x)) where {T,N}   
     _idx = ntuple(i->  i == obsdim ? idx : Colon(), N)
     return x[_idx...]
 end
 
-StatsBase.nobs(x::AbstractArray; obsdim=default_obsdim(x)) = size(x, obsdim)  
+# LearnBase imports nobs from StatsBase
+LearnBase.nobs(x::AbstractArray; obsdim=default_obsdim(x)) = size(x, obsdim)  
 
 X = rand(2,3)
 
