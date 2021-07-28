@@ -1,3 +1,5 @@
+using LearnBase: getobs, nobs, default_obsdim
+
 @test typeof(LearnBase.getobs) <: Function
 @test typeof(LearnBase.getobs!) <: Function
 @test typeof(LearnBase.gettargets) <: Function
@@ -9,7 +11,7 @@
         _idx = ntuple(i->  i == obsdim ? idx : Colon(), N)
         return x[_idx...]
     end
-    StatsBase.nobs(x::AbstractArray; obsdim=default_obsdim(x)) = size(x, obsdim)  
+    LearnBase.nobs(x::AbstractArray; obsdim=default_obsdim(x)) = size(x, obsdim)  
 
     a = rand(2,3)
     @test nobs(a) == 3
@@ -22,7 +24,7 @@
     LearnBase.getobs(t::Tuple, idx) = getobs.(t, Ref(idx))
     # Assume all elements have the same nummber of observations.
     # It would be safer to check explicitely though.
-    StatsBase.nobs(t::Tuple) = nobs(t[1])
+    LearnBase.nobs(t::Tuple) = nobs(t[1])
 
     # A dataset with 3 observations, each with 2 input features
     X, Y = rand(2, 3), rand(3)
