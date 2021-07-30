@@ -4,8 +4,11 @@
 Specify the default observation dimension for `data`.
 Falls back to `nothing` when an observation dimension is undefined.
 
-By default, the following implementations is provided:
-- `default_obsdim(A::AbstractArray) = ndims(A)`
+By default, the following implementations are provided:
+```julia
+default_obsdim(x::nothing) = nothing
+default_obsdim(x::AbstractArray) = ndims(x)
+````
 """
 default_obsdim(data) = nothing
 default_obsdim(A::AbstractArray{T,N}) where {T,N} = N
