@@ -1,5 +1,6 @@
 module LearnBase
 
+import StatsBase
 using StatsBase: nobs
 
 # AGGREGATION MODES

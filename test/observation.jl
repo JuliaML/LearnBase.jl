@@ -5,38 +5,78 @@ using LearnBase: getobs, nobs, default_obsdim
 @test typeof(LearnBase.gettargets) <: Function
 @test typeof(LearnBase.datasubset) <: Function
 
-@testset "getobs" begin
-    
-    function LearnBase.getobs(x::AbstractArray{T,N}, idx; obsdim=default_obsdim(x)) where {T,N}   
-        _idx = ntuple(i->  i == obsdim ? idx : Colon(), N)
-        return x[_idx...]
+@testset "getobs and nobs" begin
+
+    @testset "array" begin
+        a = rand(2,3)
+        @test nobs(a) == 3
+        @test @inferred getobs(a, 1) == a[:,1]
+        @test @inferred getobs(a, 2) == a[:,2]
+        @test @inferred getobs(a, 1:2) == a[:,1:2]
+        @test @inferred getobs(a, 1, obsdim=1) == a[1,:]
+        @test @inferred getobs(a, 2, obsdim=1) == a[2,:]
+        @test @inferred getobs(a, 2, obsdim=nothing) ≈ a[:,2]
     end
-    LearnBase.nobs(x::AbstractArray; obsdim=default_obsdim(x)) = size(x, obsdim)  
 
-    a = rand(2,3)
-    @test nobs(a) == 3
-    @test getobs(a, 1) ≈ a[:,1]
-    @test getobs(a, 2) ≈ a[:,2]
-    @test getobs(a, 1, obsdim=1) ≈ a[1,:]
-    @test getobs(a, 2, obsdim=1) ≈ a[2,:]
+    @testset "tuple" begin
+        # A dataset with 3 observations, each with 2 input features
+        X, Y = rand(2, 3), rand(3)
+        dataset = (X, Y) 
+        @test nobs(dataset) == 3
+        if VERSION >= v"1.6"
+            o = @inferred getobs(dataset, 2)
+        else
+            o = getobs(dataset, 2)
+        end
+        @test o[1] == X[:,2]
+        @test o[2] == Y[2]
 
-    # Here we use Ref to protect idx against broadcasting
-    LearnBase.getobs(t::Tuple, idx) = getobs.(t, Ref(idx))
-    # Assume all elements have the same nummber of observations.
-    # It would be safer to check explicitely though.
-    LearnBase.nobs(t::Tuple) = nobs(t[1])
+        if VERSION >= v"1.6"
+            o = @inferred getobs(dataset, 1:2)
+        else
+            o = getobs(dataset, 1:2)
+        end
+        
+        @test o[1] == X[:,1:2]
+        @test o[2] == Y[1:2]
+    end
 
-    # A dataset with 3 observations, each with 2 input features
-    X, Y = rand(2, 3), rand(3)
-    dataset = (X, Y) 
 
-    o = getobs(dataset, 2) # -> (X[:,2], Y[2])
-    @test o[1] ≈ X[:,2]
-    @test o[2] == Y[2]
+    @testset "named tuple" begin
+        X, Y = rand(2, 3), rand(3)
+        dataset = (x=X, y=Y) 
+        @test nobs(dataset) == 3
+        if VERSION >= v"1.6"
+            o = @inferred getobs(dataset, 2)
+        else
+            o = getobs(dataset, 2)
+        end
+        @test o.x == X[:,2]
+        @test o.y == Y[2]
+        
+        if VERSION >= v"1.6"
+            o = @inferred getobs(dataset, 1:2)
+        else
+            o = getobs(dataset, 1:2)
+        end
+        @test o.x == X[:,1:2]
+        @test o.y == Y[1:2]
+    end
 
-    o = getobs(dataset, 1:2) # -> (X[:,1:2], Y[1:2])
-    @test o[1] ≈ X[:,1:2]
-    @test o[2] == Y[1:2]
+    @testset "dict" begin
+        X, Y = rand(2, 3), rand(3)
+        dataset = Dict("X" => X, "Y" => Y) 
+        @test nobs(dataset) == 3
+        
+        # o = @inferred getobs(dataset, 2) # not inferred
+        o = getobs(dataset, 2)
+        @test o["X"] == X[:,2]
+        @test o["Y"] == Y[2]
+
+        o = getobs(dataset, 1:2)
+        @test o["X"] == X[:,1:2]
+        @test o["Y"] == Y[1:2]
+    end
 end
 
 
