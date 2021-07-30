@@ -4,13 +4,11 @@
 Specify the default observation dimension for `data`.
 Falls back to `nothing` when an observation dimension is undefined.
 
-By default, the following implementations are provided:
+By default, the following implementations is provided:
 - `default_obsdim(A::AbstractArray) = ndims(A)`
-- `default_obsdim(tup::Tuple) = map(default_obsdim, tup)`
 """
 default_obsdim(data) = nothing
-default_obsdim(A::AbstractArray) = ndims(A)
-default_obsdim(tup::Tuple) = map(default_obsdim, tup)
+default_obsdim(A::AbstractArray{T,N}) where {T,N} = N
 
 """
    getobs(data, idx; obsdim = default_obsdim(data))
@@ -74,6 +72,23 @@ getobs(dataset, 1:2) # -> (X[:,1:2], Y[1:2])
 """
 function getobs end
 
+function getobs(data::AbstractArray{T,N}, i; obsdim::Union{Int,Nothing}=nothing) where {T, N}
+   od = isnothing(obsdim) ? default_obsdim(data) : obsdim
+   data[ntuple(i -> Colon(), od - 1)..., i, ntuple(i -> Colon(), N - od)...]
+end
+
+function getobs(data::Union{Tuple, NamedTuple}, i; obsdim::Union{Int,Nothing}=default_obsdim(data))
+   # We don't force users to handle the obsdim keyword if not necessary.
+   fobs = isnothing(obsdim) ? Base.Fix2(getobs, i) : x -> getobs(x, i; obsdim=obsdim)
+   map(fobs, data)
+end
+
+function getobs(data::D, i; obsdim::Union{Int,Nothing}=default_obsdim(data)) where {D<:AbstractDict}
+   fobs = isnothing(obsdim) ? Base.Fix2(getobs, i) : x -> getobs(x, i; obsdim=obsdim)
+   # Cannot return D because the value type can change
+   Dict(k => fobs(v) for (k, v) in pairs(data))
+end
+
 """
    getobs!(buffer, data, idx; obsdim = default_obsdim(obsdim))
 
@@ -122,6 +137,37 @@ If it makes sense for the type of `data`, `obsdim` can be used
 to disptach on which dimension of `data` denotes the observations.
 """
 function datasubset end
+
+
+# We don't own nobs but pirate it for basic types
+"""
+   nobs(data; [obsdim])
+
+Return the number of observations in the dataset `data`. 
+
+If it makes sense for the type of `data`, `obsdim` can be used
+to indicate which dimension of `data` denotes the observations.
+See [`default_obsdim`](@ref) for defining a default dimension.
+"""
+function StatsBase.nobs(data::AbstractArray; obsdim::Union{Int,Nothing}=nothing)
+    od = isnothing(obsdim) ? default_obsdim(data) : obsdim
+    size(data, od)
+end
+
+function StatsBase.nobs(data::Union{Tuple, NamedTuple, AbstractDict}; obsdim::Union{Int,Nothing} = default_obsdim(data))
+    length(data) > 0 || throw(ArgumentError("Need at least one data input"))
+    
+    # We don't force users to handle the obsdim
+    # keyword if not necessary.
+    fnobs = isnothing(obsdim) ? nobs : x -> nobs(x; obsdim=obsdim)
+    
+    n = fnobs(data[first(keys(data))])
+    for i in keys(data)
+        ni = fnobs(data[i])
+        n == ni || throw(DimensionMismatch("All data inputs should have the same number of observations, i.e. size in the last dimension. "))
+    end
+    return n
+end
 
 # todeprecate
 function target end
