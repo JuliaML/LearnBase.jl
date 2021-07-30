@@ -76,19 +76,19 @@ getobs(dataset, 1:2) # -> (X[:,1:2], Y[1:2])
 function getobs end
 
 function getobs(data::AbstractArray{T,N}, idx; obsdim::Union{Int,Nothing}=nothing) where {T, N}
-   od = isnothing(obsdim) ? default_obsdim(data) : obsdim
+   od = obsdim === nothing ? default_obsdim(data) : obsdim
    _idx = ntuple(i -> i == od ? idx : Colon(), N)
    data[_idx...]
 end
 
 function getobs(data::Union{Tuple, NamedTuple}, i; obsdim::Union{Int,Nothing}=default_obsdim(data))
    # We don't force users to handle the obsdim keyword if not necessary.
-   fobs = isnothing(obsdim) ? Base.Fix2(getobs, i) : x -> getobs(x, i; obsdim=obsdim)
+   fobs = obsdim === nothing ? Base.Fix2(getobs, i) : x -> getobs(x, i; obsdim=obsdim)
    map(fobs, data)
 end
 
 function getobs(data::D, i; obsdim::Union{Int,Nothing}=default_obsdim(data)) where {D<:AbstractDict}
-   fobs = isnothing(obsdim) ? Base.Fix2(getobs, i) : x -> getobs(x, i; obsdim=obsdim)
+   fobs = obsdim === nothing ? Base.Fix2(getobs, i) : x -> getobs(x, i; obsdim=obsdim)
    # Cannot return D because the value type can change
    Dict(k => fobs(v) for (k, v) in pairs(data))
 end
@@ -154,7 +154,7 @@ to indicate which dimension of `data` denotes the observations.
 See [`default_obsdim`](@ref) for defining a default dimension.
 """
 function StatsBase.nobs(data::AbstractArray; obsdim::Union{Int,Nothing}=nothing)
-    od = isnothing(obsdim) ? default_obsdim(data) : obsdim
+    od = obsdim === nothing ? default_obsdim(data) : obsdim
     size(data, od)
 end
 
@@ -163,7 +163,7 @@ function StatsBase.nobs(data::Union{Tuple, NamedTuple, AbstractDict}; obsdim::Un
     
     # We don't force users to handle the obsdim
     # keyword if not necessary.
-    fnobs = isnothing(obsdim) ? nobs : x -> nobs(x; obsdim=obsdim)
+    fnobs = obsdim === nothing ? nobs : x -> nobs(x; obsdim=obsdim)
     
     n = fnobs(data[first(keys(data))])
     for i in keys(data)
