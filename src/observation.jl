@@ -75,9 +75,10 @@ getobs(dataset, 1:2) # -> (X[:,1:2], Y[1:2])
 """
 function getobs end
 
-function getobs(data::AbstractArray{T,N}, i; obsdim::Union{Int,Nothing}=nothing) where {T, N}
+function getobs(data::AbstractArray{T,N}, idx; obsdim::Union{Int,Nothing}=nothing) where {T, N}
    od = isnothing(obsdim) ? default_obsdim(data) : obsdim
-   data[ntuple(i -> Colon(), od - 1)..., i, ntuple(i -> Colon(), N - od)...]
+   _idx = ntuple(i -> i == od ? idx : Colon(), N)
+   data[_idx...]
 end
 
 function getobs(data::Union{Tuple, NamedTuple}, i; obsdim::Union{Int,Nothing}=default_obsdim(data))
