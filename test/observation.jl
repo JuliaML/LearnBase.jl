@@ -34,7 +34,7 @@ using LearnBase: getobs, nobs, default_obsdim
         if VERSION >= v"1.6"
             o = @inferred getobs(dataset, 1:2)
         else
-            o = getobs(dataset, 2)
+            o = getobs(dataset, 1:2)
         end
         
         @test o[1] == X[:,1:2]
@@ -57,7 +57,7 @@ using LearnBase: getobs, nobs, default_obsdim
         if VERSION >= v"1.6"
             o = @inferred getobs(dataset, 1:2)
         else
-            o = getobs(dataset, 2)
+            o = getobs(dataset, 1:2)
         end
         @test o.x == X[:,1:2]
         @test o.y == Y[1:2]
