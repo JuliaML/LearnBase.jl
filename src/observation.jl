@@ -2,16 +2,16 @@
     default_obsdim(data)
 
 Specify the default observation dimension for `data`.
-Falls back to `nothing` when an observation dimension is undefined.
+Defaults to `nothing` when an observation dimension is undefined.
 
-By default, the following implementations are provided:
-```julia
-default_obsdim(x::nothing) = nothing
-default_obsdim(x::AbstractArray) = ndims(x)
-````
+The following default implementations are provided:
+- `default_obsdim(A::AbstractArray) = ndims(A)`
+- `default_obsdim(tup::Tuple) = map(default_obsdim, tup)`
 """
 default_obsdim(data) = nothing
-default_obsdim(A::AbstractArray{T,N}) where {T,N} = N
+default_obsdim(::Type{<:AbstractArray{<:Any, N}}) where N = N
+default_obsdim(A::AbstractArray) = ndims(A)
+default_obsdim(tup::Tuple) = map(default_obsdim, tup)
 
 """
    getobs(data, idx; obsdim = default_obsdim(data))
@@ -25,73 +25,15 @@ be passed as-is to some learning algorithm. There is no strict
 interface requirement on how this "actual data" must look like.
 Every author behind some custom data container can make this
 decision himself/herself. We do, however, expect it to be consistent
-for `idx` being an integer, as well as `idx` being a vector, respectively.
+for `idx` being an integer, as well as `idx` being an abstract
+vector, respectively.
 
 If it makes sense for the type of `data`, `obsdim` can be used
 to indicate which dimension of `data` denotes the observations.
 See [`default_obsdim`](@ref) for defining a default dimension.
-
-Data types implementing `LearnBase.getobs` typically also
-implement `StatsBase.nobs`.
-
-# Examples
-
-Let's see how to implement a dataset interface for a dataset
-represented by an array:
-```julia
-using LearnBase
-
-function LearnBase.getobs(x::AbstractArray{T,N}, idx; obsdim=default_obsdim(x)) where {T,N}   
-    _idx = ntuple(i->  i == obsdim ? idx : Colon(), N)
-    return x[_idx...]
-end
-
-# LearnBase imports nobs from StatsBase
-LearnBase.nobs(x::AbstractArray; obsdim=default_obsdim(x)) = size(x, obsdim)  
-
-X = rand(2,3)
-
-nobs(X) # == 3
-
-getobs(X, 2) # same as X[:,2]
-```
-In a supervised learning setting, it can be convenient to 
-interpret a tuple of arrays as the inputs and the tagets:
-```julia
-# Here we use Ref to protect idx against broadcasting
-LearnBase.getobs(t::Tuple, idx) = getobs.(t, Ref(idx))
-
-# Assume all elements have the same nummber of observations.
-# It would be safer to check explicitely though.
-LearnBase.nobs(t::Tuple) = nobs(t[1])
-
-# A dataset with 3 observations, each with 2 input features
-X, Y = rand(2, 3), rand(3)
-dataset = (X, Y) 
-
-getobs(dataset, 2) # -> (X[:,2], Y[2])
-getobs(dataset, 1:2) # -> (X[:,1:2], Y[1:2])
-```
 """
 function getobs end
-
-function getobs(data::AbstractArray{T,N}, idx; obsdim::Union{Int,Nothing}=nothing) where {T, N}
-   od = obsdim === nothing ? default_obsdim(data) : obsdim
-   _idx = ntuple(i -> i == od ? idx : Colon(), N)
-   data[_idx...]
-end
-
-function getobs(data::Union{Tuple, NamedTuple}, i; obsdim::Union{Int,Nothing}=default_obsdim(data))
-   # We don't force users to handle the obsdim keyword if not necessary.
-   fobs = obsdim === nothing ? Base.Fix2(getobs, i) : x -> getobs(x, i; obsdim=obsdim)
-   map(fobs, data)
-end
-
-function getobs(data::D, i; obsdim::Union{Int,Nothing}=default_obsdim(data)) where {D<:AbstractDict}
-   fobs = obsdim === nothing ? Base.Fix2(getobs, i) : x -> getobs(x, i; obsdim=obsdim)
-   # Cannot return D because the value type can change
-   Dict(k => fobs(v) for (k, v) in pairs(data))
-end
+getobs(data, idx; obsdim) = getobs(data, idx)
 
 """
    getobs!(buffer, data, idx; obsdim = default_obsdim(obsdim))
@@ -112,67 +54,135 @@ to indicate which dimension of `data` denotes the observations.
 See [`default_obsdim`](@ref) for defining a default dimension.
 """
 function getobs! end
+getobs!(buffer, data, idx; obsdim = default_obsdim(data)) = getobs(data, idx; obsdim = obsdim)
+
+# --------------------------------------------------------------------
+
+"""
+   gettarget([f], observation)
+
+Use `f` (if provided) to extract the target from the single `observation` and return it.
+It is used internally by [`targets`](@ref) (only if `f` is provided)
+and by [`eachtarget`](@ref) (always) on each individual observation.
+"""
+function gettarget end
 
 """
    gettargets(data, idx; obsdim = default_obsdim(data))
 
 Return the targets corresponding to the observation-index `idx`.
 Note that `idx` can be of type `Int` or `AbstractVector`.
+
 Implementing this function for a custom type of `data` is
 optional. It is particularly useful if the targets in `data` can
 be provided without invoking [`getobs`](@ref). For example if you have a
 remote data-source where the labels are part of some metadata
 that is locally available.
+
 If it makes sense for the type of `data`, `obsdim` can be used
 to indicate which dimension of `data` denotes the observations.
 See [`default_obsdim`](@ref) for defining a default dimension.
 """
 function gettargets end
 
+"""
+   targets([f], data; obsdim = default_obsdim)
+
+???
+"""
+function targets end
+
+# --------------------------------------------------------------------
 
 """
-     datasubset(data, [idx]; obsdim = default_obsdim(data))
+    abstract DataView{TElem, TData} <: AbstractVector{TElem}
 
-Return a lazy subset of the observations in `data` that correspond
-to the given `idx`. No data should be copied except of the
-indices. Note that `idx` can be of type `Int` or `AbstractVector`.
-Both options must be supported by a custom type.
-If it makes sense for the type of `data`, `obsdim` can be used
-to disptach on which dimension of `data` denotes the observations.
+Baseclass for all vector-like views of some data structure.
+This allow for example to see some design matrix as a vector of
+individual observation-vectors instead of one matrix.
+
+see `MLDataPattern.ObsView` and `MLDataPattern.BatchView` for examples.
 """
-function datasubset end
+abstract type DataView{TElem, TData} <: AbstractVector{TElem} end
 
-
-# We don't own nobs but pirate it for basic types
 """
-   nobs(data; [obsdim])
+    abstract AbstractObsView{TElem, TData} <: DataView{TElem, TData}
 
-Return the number of observations in the dataset `data`. 
+Baseclass for all vector-like views of some data structure,
+that views it as some form or vector of observations.
 
-If it makes sense for the type of `data`, `obsdim` can be used
-to indicate which dimension of `data` denotes the observations.
-See [`default_obsdim`](@ref) for defining a default dimension.
+see `MLDataPattern.ObsView` for a concrete example.
 """
-function StatsBase.nobs(data::AbstractArray; obsdim::Union{Int,Nothing}=nothing)
-    od = obsdim === nothing ? default_obsdim(data) : obsdim
-    size(data, od)
+abstract type AbstractObsView{TElem, TData} <: DataView{TElem, TData} end
+
+"""
+    abstract AbstractBatchView{TElem, TData} <: DataView{TElem, TData}
+
+Baseclass for all vector-like views of some data structure,
+that views it as some form or vector of equally sized batches.
+
+see `MLDataPattern.BatchView` for a concrete example.
+"""
+abstract type AbstractBatchView{TElem, TData} <: DataView{TElem, TData} end
+
+# --------------------------------------------------------------------
+
+"""
+    abstract DataIterator{TElem,TData}
+
+Baseclass for all types that iterate over a `data` source
+in some manner. The total number of observations may or may
+not be known or defined and in general there is no contract that
+`getobs` or `nobs` has to be supported by the type of `data`.
+Furthermore, `length` should be used to query how many elements
+the iterator can provide, while `nobs` may return the underlying
+true amount of observations available (if known).
+
+see `MLDataPattern.RandomObs`, `MLDataPattern.RandomBatches`
+"""
+abstract type DataIterator{TElem,TData} end
+
+"""
+    abstract ObsIterator{TElem,TData} <: DataIterator{TElem,TData}
+
+Baseclass for all types that iterate over some data source
+one observation at a time.
+
+```julia
+using MLDataPattern
+@assert typeof(RandomObs(X)) <: ObsIterator
+
+for x in RandomObs(X)
+    # ...
 end
+```
 
-function StatsBase.nobs(data::Union{Tuple, NamedTuple, AbstractDict}; obsdim::Union{Int,Nothing} = default_obsdim(data))
-    length(data) > 0 || throw(ArgumentError("Need at least one data input"))
-    
-    # We don't force users to handle the obsdim
-    # keyword if not necessary.
-    fnobs = obsdim === nothing ? nobs : x -> nobs(x; obsdim=obsdim)
-    
-    n = fnobs(data[first(keys(data))])
-    for i in keys(data)
-        ni = fnobs(data[i])
-        n == ni || throw(DimensionMismatch("All data inputs should have the same number of observations, i.e. size in the last dimension. "))
-    end
-    return n
+see `MLDataPattern.RandomObs`
+"""
+abstract type ObsIterator{TElem,TData} <: DataIterator{TElem,TData} end
+
+"""
+    abstract BatchIterator{TElem,TData} <: DataIterator{TElem,TData}
+
+Baseclass for all types that iterate over of some data source one
+batch at a time.
+
+```julia
+@assert typeof(RandomBatches(X, size=10)) <: BatchIterator
+
+for x in RandomBatches(X, size=10)
+    @assert nobs(x) == 10
+    # ...
 end
+```
 
-# todeprecate
-function target end
-function gettarget end
+see `MLDataPattern.RandomBatches`
+"""
+abstract type BatchIterator{TElem,TData} <: DataIterator{TElem,TData} end
+
+# --------------------------------------------------------------------
+
+# just for dispatch for those who care to
+const AbstractDataIterator{E,T}  = Union{DataIterator{E,T}, DataView{E,T}}
+const AbstractObsIterator{E,T}   = Union{ObsIterator{E,T},  AbstractObsView{E,T}}
+const AbstractBatchIterator{E,T} = Union{BatchIterator{E,T},AbstractBatchView{E,T}}

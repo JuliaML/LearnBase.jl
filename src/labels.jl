@@ -68,20 +68,18 @@ function neglabel end
 """
     labelenc(obj) -> LabelEncoding
 
-    Tries to determine the most approriate label-encoding to describe the
+Tries to determine the most approriate label-encoding to describe the
 given object `obj` based on the result of `label(obj)`. Note that in
 most cases this function is not typestable.
 
-```juliarepl
-julia> labelenc([:yes,:no,:no,:yes,:maybe])
-MLLabelUtils.LabelEnc.NativeLabels{Symbol,3}(Symbol[:yes,:no,:maybe],Dict(:yes=>1,:maybe=>3,:no=>2))
+    julia> labelenc([:yes,:no,:no,:yes,:maybe])
+    MLLabelUtils.LabelEnc.NativeLabels{Symbol,3}(Symbol[:yes,:no,:maybe],Dict(:yes=>1,:maybe=>3,:no=>2))
 
-julia> labelenc([1,0,0,1,0,1])
-MLLabelUtils.LabelEnc.ZeroOne{Int64,Float64}(0.5)
+    julia> labelenc([1,0,0,1,0,1])
+    MLLabelUtils.LabelEnc.ZeroOne{Int64,Float64}(0.5)
 
-julia> labelenc(Int8[1,-1,-1,1,-1,1])
-MLLabelUtils.LabelEnc.MarginBased{Int8}()
-```
+    julia> labelenc(Int8[1,-1,-1,1,-1,1])
+    MLLabelUtils.LabelEnc.MarginBased{Int8}()
 """
 function labelenc end
 
@@ -127,9 +125,11 @@ function classify! end
 
 """
     convertlabel(new_encoding, x, [old_encoding])
+
 Converts the given value/array `x` from the `old_encoding` into the
 `new_encoding`. Note that if `old_encoding` is not specified it will
 be derived automaticaly using `labelenc`.
+
     julia> convertlabel(LabelEnc.MarginBased, [0, 1, 1, 0, 0])
     5-element Array{Int64,1}:
      -1
@@ -137,6 +137,7 @@ be derived automaticaly using `labelenc`.
       1
      -1
      -1
+
     julia> convertlabel([:yes,:no], [0, 1, 1, 0, 0])
     5-element Array{Symbol,1}:
      :no
@@ -144,10 +145,14 @@ be derived automaticaly using `labelenc`.
      :yes
      :no
      :no
+
 For more information on the available encodings, see `?LabelEnc`.
+
     convertlabel(new_encoding, x, [old_encoding], [obsdim])
+
 When working with `OneOfK` one can additionally specifify which
 dimension of the array denotes the observations using `obsdim`
+
     julia> convertlabel(LabelEnc.OneOfK, [0, 1, 1, 0, 0], obsdim = 2)
     2×5 Array{Int64,2}:
      0  1  1  0  0
@@ -162,6 +167,7 @@ function convertlabel! end
 Creates a lazy view into `vec` that makes it look like it is
 in the encoding specified by `new_encoding`, while it is actually
 preserved as being of `old_encoding`.
+
 This method only works for label-encodings that are vector-based
 (i.e. pretty much all but `OneOfK`). The resulting MappedArray
 will be writeable unless `old_encoding` is of type `OneVsRest`,
@@ -174,6 +180,7 @@ function convertlabelview end
 
 Computes a mapping from the labels in `obj` to all the individual
 element-indices in `obj` that correspond to that label
+
     julia> labelmap([0, 1, 1, 0, 0])
     Dict{Int64,Array{Int64,1}} with 2 entries:
       0 => [1,4,5]
@@ -186,14 +193,17 @@ function labelmap end
 
 Updates the given label-map `dict` with the new element `elem`,
 which is assumed to be associated with the index `idx`.
+
     julia> lm = labelmap([0, 1, 1, 0, 0])
     Dict{Int64,Array{Int64,1}} with 2 entries:
       0 => [1,4,5]
       1 => [2,3]
+
     julia> labelmap!(lm, 6, 0)
     Dict{Int64,Array{Int64,1}} with 2 entries:
       0 => [1,4,5,6]
       1 => [2,3]
+
     julia> labelmap!(lm, 7:8, [1,0])
     Dict{Int64,Array{Int64,1}} with 2 entries:
       0 => [1,4,5,6,8]
@@ -205,6 +215,7 @@ function labelmap! end
     labelfreq(obj) -> Dict
 
 Computes the absolute frequencies for each label in `obj`.
+
     julia> labelfreq([0, 1, 1, 0, 0])
     Dict{Int64,Int64} with 2 entries:
       0 => 3
@@ -215,12 +226,14 @@ function labelfreq end
 """
     labelfreq!(dict, obj) -> Dict
 
-Updates the given label-frequency-map `dict` with the absolute
+updates the given label-frequency-map `dict` with the absolute
 frequencies for each label in `obj`
+
     julia> ld = labelfreq([0, 1, 1, 0, 0])
     Dict{Int64,Int64} with 2 entries:
       0 => 3
       1 => 2
+
     julia> labelfreq!(ld, [1,0,0])
     Dict{Int64,Int64} with 2 entries:
       0 => 5
@@ -234,11 +247,14 @@ function labelfreq! end
 Inverse function of labelmap.
 Computes an `array` of labels by element-wise
 traversal of the entries in `dict`.
+
     julia> labelvec = [:yes,:no,:no,:yes,:yes]
+
     julia> lm = labelmap(labelvec)
     Dict{Symbol,Array{Int64,1}} with 2 entries:
         :yes => [1, 4, 5]
         :no  => [2, 3]
+
     julia> labelmap2vec(lm)
     5-element Array{Symbol,1}:
         :yes
@@ -247,4 +263,4 @@ traversal of the entries in `dict`.
         :yes
         :yes
 """
-function labelmap2vec end 
+function labelmap2vec end
