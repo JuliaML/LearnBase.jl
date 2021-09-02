@@ -1,6 +1,6 @@
 name = "LearnBase"
 uuid = "7f8f8fb0-2700-5f03-b4bd-41f8cfc144b6"
-version = "0.5.2"
+version = "0.5.3"
 
 [deps]
 StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
