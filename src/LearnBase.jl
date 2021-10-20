@@ -1,16 +1,15 @@
 module LearnBase
 
-import StatsBase
-using StatsBase: nobs
+import StatsBase: nobs
 
 # AGGREGATION MODES
 include("aggmode.jl")
 
-# VIEW AND ITERATORS
-include("iteration.jl")
-
 # OBSERVATION DIMENSIONS
 include("observation.jl")
+
+# LABEL ENCONDINGS
+include("labels.jl")
 
 # LEARNING COSTS (e.g. loss & penalty)
 include("costs.jl")
