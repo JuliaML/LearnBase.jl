@@ -198,9 +198,6 @@ function _getobs(tup::Union{Tuple, NamedTuple}, indices, obsdim)
     end
 end
 
-_getobs_Union{Tuple, NamedTuple}_error() =
-    throw(DimensionMismatch("The first argument (tuple with the buffers) must have the same length as the second argument (tuple with the data containers)."))
-
 LearnBase.getobs!(buffers::Union{Tuple, NamedTuple}, tup::Union{Tuple, NamedTuple}, indices;
                   obsdim = default_obsdim(tup)) = 
     _getobs!(buffers, tup, indices, obsdim)
