@@ -143,7 +143,7 @@ end
 _check_nobs_error() =
     throw(DimensionMismatch("All data containers must have the same number of observations."))
 
-function _check_nobs(tup::Tuple)
+function _check_nobs(tup::Union{Tuple, NamedTuple})
     length(tup) == 0 && return
     n1 = nobs(tup[1])
     for i=2:length(tup)
@@ -151,7 +151,7 @@ function _check_nobs(tup::Tuple)
     end
 end
 
-function _check_nobs(tup::Tuple, obsdim)
+function _check_nobs(tup::Union{Tuple, NamedTuple}, obsdim)
     length(tup) == 0 && return
     n1 = nobs(tup[1], obsdim)
     for i=2:length(tup)
@@ -159,7 +159,7 @@ function _check_nobs(tup::Tuple, obsdim)
     end
 end
 
-function _check_nobs(tup::Tuple, obsdims::Tuple)
+function _check_nobs(tup::Union{Tuple, NamedTuple}, obsdims::Union{Tuple, NamedTuple})
     length(tup) == 0 && return
     length(tup) == length(obsdims) ||
         throw(DimensionMismatch("Number of elements in obsdim doesn't match data."))
@@ -169,19 +169,20 @@ function _check_nobs(tup::Tuple, obsdims::Tuple)
     end
 end
 
-function LearnBase.nobs(tup::Tuple, ::Nothing)::Int
+function LearnBase.nobs(tup::Union{Tuple, NamedTuple}, ::Nothing)::Int
     _check_nobs(tup)
     return length(tup) == 0 ? 0 : nobs(tup[1])
 end
 
-function LearnBase.nobs(tup::Tuple; obsdim = default_obsdim(tup))::Int
+function LearnBase.nobs(tup::Union{Tuple, NamedTuple}; obsdim = default_obsdim(tup))::Int
     _check_nobs(tup, obsdim)
     return length(tup) == 0 ? 0 : nobs(tup[1], obsdim[1])
 end
 
-LearnBase.getobs(tup::Tuple, indices; obsdim = default_obsdim(tup)) = _getobs(tup, indices, obsdim)
+LearnBase.getobs(tup::Union{Tuple, NamedTuple}, indices; obsdim = default_obsdim(tup)) =
+    _getobs(tup, indices, obsdim)
 
-function _getobs(tup::Tuple, indices, obsdims::Tuple)
+function _getobs(tup::Union{Tuple, NamedTuple}, indices, obsdims::Union{Tuple, NamedTuple})
     _check_nobs(tup, obsdims)
 
     return map(tup, obsdims) do x, obsdim
@@ -189,7 +190,7 @@ function _getobs(tup::Tuple, indices, obsdims::Tuple)
     end
 end
 
-function _getobs(tup::Tuple, indices, obsdim)
+function _getobs(tup::Union{Tuple, NamedTuple}, indices, obsdim)
     _check_nobs(tup, obsdim)
 
     return map(tup) do x
@@ -197,13 +198,17 @@ function _getobs(tup::Tuple, indices, obsdim)
     end
 end
 
-_getobs_tuple_error() =
+_getobs_Union{Tuple, NamedTuple}_error() =
     throw(DimensionMismatch("The first argument (tuple with the buffers) must have the same length as the second argument (tuple with the data containers)."))
 
-LearnBase.getobs!(buffers::Tuple, tup::Tuple, indices; obsdim = default_obsdim(tup)) = 
+LearnBase.getobs!(buffers::Union{Tuple, NamedTuple}, tup::Union{Tuple, NamedTuple}, indices;
+                  obsdim = default_obsdim(tup)) = 
     _getobs!(buffers, tup, indices, obsdim)
 
-function _getobs!(buffers::Tuple, tup::Tuple, indices, obsdims::Tuple)
+function _getobs!(buffers::Union{Tuple, NamedTuple},
+                  tup::Union{Tuple, NamedTuple},
+                  indices,
+                  obsdims::Union{Tuple, NamedTuple})
     _check_nobs(tup, obsdims)
 
     return map(buffers, tup, obsdims) do buffer, x, obsdim
@@ -211,7 +216,7 @@ function _getobs!(buffers::Tuple, tup::Tuple, indices, obsdims::Tuple)
     end
 end
 
-function _getobs!(buffers::Tuple, tup::Tuple, indices, obsdim)
+function _getobs!(buffers::Union{Tuple, NamedTuple}, tup::Union{Tuple, NamedTuple}, indices, obsdim)
     _check_nobs(tup, obsdim)
 
     return map(buffers, tup) do buffer, x
