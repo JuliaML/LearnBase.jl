@@ -14,30 +14,39 @@ default_obsdim(A::AbstractArray) = ndims(A)
 default_obsdim(tup::Tuple) = map(default_obsdim, tup)
 
 """
-   getobs(data, idx, obsdim = default_obsdim(data))
+    nobs(data; obsdim = default_obsdim(data))
+
+Return the total number of observations contained in `data`.
+
+If it makes sense for the type of `data`, `obsdim` can be used
+to indicate which dimension of `data` denotes the observations.
+See [`default_obsdim`](@ref) for defining a default dimension.
+"""
+function nobs end
+
+"""
+    getobs(data, idx; obsdim = default_obsdim(data))
 
 Return the observations corresponding to the observation-index `idx`.
-Note that `idx` can be of type `Int` or `AbstractVector`.
-*Both options must be supported by a custom type.*
+Note that `idx` can be any type as long as `data` has defined
+`getobs` for that type.
 
 The returned observation(s) should be in the form intended to
 be passed as-is to some learning algorithm. There is no strict
 interface requirement on how this "actual data" must look like.
 Every author behind some custom data container can make this
-decision themselves. We do, however, expect it to be consistent
-for `idx` being an integer, as well as `idx` being an abstract
-vector, respectively.
+decision themselves.
+The output should be consistent when `idx` is a scalar vs vector.
 
 If it makes sense for the type of `data`, `obsdim` can be used
 to indicate which dimension of `data` denotes the observations.
 See [`default_obsdim`](@ref) for defining a default dimension.
 """
 function getobs end
-getobs(data, idx) = data[idx]
-getobs(data, idx, obsdim) = getobs(data, idx)
+getobs(data, idx; obsdim) = data[idx]
 
 """
-   getobs!(buffer, data, idx, obsdim = default_obsdim(obsdim))
+    getobs!(buffer, data, idx, obsdim = default_obsdim(obsdim))
 
 Inplace version of `getobs(data, idx; obsdim)`. If this method
 is defined for the type of `data`, then `buffer` should be used
@@ -47,20 +56,23 @@ Implementing this function is optional. In the case no such
 method is provided for the type of `data`, then `buffer` will be
 *ignored* and the result of `getobs` returned. This could be
 because the type of `data` may not lend itself to the concept
-of `copy!`. Thus, supporting a custom `getobs!(::MyType, ...)`
-is optional and not required.
+of `copy!`. Thus, supporting a custom `getobs!` is optional
+and not required.
 
 If it makes sense for the type of `data`, `obsdim` can be used
 to indicate which dimension of `data` denotes the observations.
 See [`default_obsdim`](@ref) for defining a default dimension.
 """
 function getobs! end
-getobs!(buffer, data, idx, obsdim = default_obsdim(data)) = getobs(data, idx, obsdim)
+getobs!(buffer, data, idx; obsdim = default_obsdim(data)) =
+   getobs(data, idx; obsdim = obsdim)
 
 # --------------------------------------------------------------------
 
+# TODO: consider deprecating these
+
 """
-   gettarget([f], observation)
+    gettarget([f], observation)
 
 Use `f` (if provided) to extract the target from the single `observation` and return it.
 It is used internally by [`targets`](@ref) (only if `f` is provided)
@@ -69,7 +81,7 @@ and by [`eachtarget`](@ref) (always) on each individual observation.
 function gettarget end
 
 """
-   gettargets(data, idx; obsdim = default_obsdim(data))
+    gettargets(data, idx; obsdim = default_obsdim(data))
 
 Return the targets corresponding to the observation-index `idx`.
 Note that `idx` can be of type `Int` or `AbstractVector`.
@@ -86,19 +98,15 @@ See [`default_obsdim`](@ref) for defining a default dimension.
 """
 function gettargets end
 
-"""
-   targets([f], data; obsdim = default_obsdim)
-
-???
-"""
 function targets end
 
 # --------------------------------------------------------------------
 
 abstract type AbstractDataContainer end
 
-Base.getindex(x::AbstractDataContainer, i) = getobs(x, i, default_obsdim(x))
-Base.iterate(x::AbstractDataContainer, state = 1) = getobs(x, state, default_obsdim(x)), state + 1
+Base.getindex(x::AbstractDataContainer, i) = getobs(x, i; obsdim = default_obsdim(x))
+Base.iterate(x::AbstractDataContainer, state = 1) =
+    getobs(x, state; obsdim = default_obsdim(x)), state + 1
 
 # --------------------------------------------------------------------
 
@@ -106,3 +114,107 @@ Base.iterate(x::AbstractDataContainer, state = 1) = getobs(x, state, default_obs
 # e.g. shuffleobs can be anywhere in pipeline but
 #      eachbatch is usually at the end
 abstract type AbstractDataIterator <: AbstractDataContainer end
+
+
+# --------------------------------------------------------------------
+# Arrays
+
+LearnBase.nobs(A::AbstractArray; obsdim = default_obsdim(A)) = size(A, obsdim)
+LearnBase.nobs(A::AbstractArray{<:Any, 0}; obsdim) = 1
+
+function LearnBase.getobs(A::AbstractArray{<:Any, N}, idx; obsdim = default_obsdim(A)) where N
+    (obsdim > N) && throw(BoundsError(A, (ntuple(k -> Colon(), obsdim - 1)..., idx)))
+    I = Base.setindex(map(Base.Slice, axes(A)), idx, obsdim)
+    return A[I...]
+end
+LearnBase.getobs(A::AbstractArray{<:Any, 0}, idx; obsdim) = A[idx]
+
+function LearnBase.getobs!(buffer, A::AbstractArray, idx; obsdim = default_obsdim(obsdim))
+    (obsdim > N) && throw(BoundsError(A, (ntuple(k -> Colon(), obsdim - 1)..., idx)))
+    I = Base.setindex(map(Base.Slice, axes(A)), idx, obsdim)
+    buffer .= A[I...]
+
+    return buffer
+end
+
+# --------------------------------------------------------------------
+# Tuples
+
+_check_nobs_error() =
+    throw(DimensionMismatch("All data containers must have the same number of observations."))
+
+function _check_nobs(tup::Tuple)
+    length(tup) == 0 && return
+    n1 = nobs(tup[1])
+    for i=2:length(tup)
+        nobs(tup[i]) != n1 && _check_nobs_error()
+    end
+end
+
+function _check_nobs(tup::Tuple, obsdim)
+    length(tup) == 0 && return
+    n1 = nobs(tup[1], obsdim)
+    for i=2:length(tup)
+        nobs(tup[i], obsdim) != n1 && _check_nobs_error()
+    end
+end
+
+function _check_nobs(tup::Tuple, obsdims::Tuple)
+    length(tup) == 0 && return
+    length(tup) == length(obsdims) ||
+        throw(DimensionMismatch("Number of elements in obsdim doesn't match data."))
+    n1 = nobs(tup[1], obsdims[1])
+    for i=2:length(tup)
+        nobs(tup[i], obsdims[i]) != n1 && _check_nobs_error()
+    end
+end
+
+function LearnBase.nobs(tup::Tuple, ::Nothing)::Int
+    _check_nobs(tup)
+    return length(tup) == 0 ? 0 : nobs(tup[1])
+end
+
+function LearnBase.nobs(tup::Tuple; obsdim = default_obsdim(tup))::Int
+    _check_nobs(tup, obsdim)
+    return length(tup) == 0 ? 0 : nobs(tup[1], obsdim[1])
+end
+
+LearnBase.getobs(tup::Tuple, indices; obsdim = default_obsdim(tup)) = _getobs(tup, indices, obsdim)
+
+function _getobs(tup::Tuple, indices, obsdims::Tuple)
+    _check_nobs(tup, obsdims)
+
+    return map(tup, obsdims) do x, obsdim
+        getobs(x, indices; obsdim = obsdim)
+    end
+end
+
+function _getobs(tup::Tuple, indices, obsdim)
+    _check_nobs(tup, obsdim)
+
+    return map(tup) do x
+        getobs(x, indices; obsdim = obsdim)
+    end
+end
+
+_getobs_tuple_error() =
+    throw(DimensionMismatch("The first argument (tuple with the buffers) must have the same length as the second argument (tuple with the data containers)."))
+
+LearnBase.getobs!(buffers::Tuple, tup::Tuple, indices; obsdim = default_obsdim(tup)) = 
+    _getobs!(buffers, tup, indices, obsdim)
+
+function _getobs!(buffers::Tuple, tup::Tuple, indices, obsdims::Tuple)
+    _check_nobs(tup, obsdims)
+
+    return map(buffers, tup, obsdims) do buffer, x, obsdim
+        getobs!(buffer, x, indices; obsdim = obsdim)
+    end
+end
+
+function _getobs!(buffers::Tuple, tup::Tuple, indices, obsdim)
+    _check_nobs(tup, obsdim)
+
+    return map(buffers, tup) do buffer, x
+        getobs!(buffer, x, indices; obsdim = obsdim)
+    end
+end
