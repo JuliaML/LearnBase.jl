@@ -43,7 +43,7 @@ to indicate which dimension of `data` denotes the observations.
 See [`default_obsdim`](@ref) for defining a default dimension.
 """
 function getobs end
-getobs(data, idx; obsdim) = data[idx]
+getobs(data, idx; obsdim = nothing) = data[idx]
 
 """
     getobs!(buffer, data, idx, obsdim = default_obsdim(obsdim))
