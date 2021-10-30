@@ -120,13 +120,13 @@ abstract type AbstractDataIterator <: AbstractDataContainer end
 # Arrays
 
 function LearnBase.nobs(A::AbstractArray; obsdim = default_obsdim(A))
-    od = isnothing(obsdim) ? default_obsdim(A) : obsdim
+    od = obsdim === nothing ? default_obsdim(A) : obsdim
     size(A, od)
 end
 LearnBase.nobs(A::AbstractArray{<:Any, 0}; obsdim) = 1
 
 function LearnBase.getobs(A::AbstractArray{<:Any, N}, idx; obsdim = default_obsdim(A)) where N
-    od = isnothing(obsdim) ? default_obsdim(A) : obsdim
+    od = obsdim === nothing ? default_obsdim(A) : obsdim
     (od > N) && throw(BoundsError(A, (ntuple(k -> Colon(), od - 1)..., idx)))
     I = Base.setindex(map(Base.Slice, axes(A)), idx, od)
     return A[I...]
@@ -178,7 +178,7 @@ function LearnBase.nobs(tup::Union{Tuple, NamedTuple}; obsdim = default_obsdim(t
 
     # We don't force users to handle the obsdim
     # keyword if not necessary.
-    fnobs = isnothing(obsdim) ? nobs : x -> nobs(x; obsdim = obsdim[1])
+    fnobs = obsdim === nothing ? nobs : x -> nobs(x; obsdim = obsdim[1])
     return length(tup) == 0 ? 0 : fnobs(tup[1])
 end
 
