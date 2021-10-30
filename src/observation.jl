@@ -119,12 +119,16 @@ abstract type AbstractDataIterator <: AbstractDataContainer end
 # --------------------------------------------------------------------
 # Arrays
 
-LearnBase.nobs(A::AbstractArray; obsdim = default_obsdim(A)) = size(A, obsdim)
+function LearnBase.nobs(A::AbstractArray; obsdim = default_obsdim(A))
+    od = isnothing(obsdim) ? default_obsdim(A) : obsdim
+    size(A, od)
+end
 LearnBase.nobs(A::AbstractArray{<:Any, 0}; obsdim) = 1
 
 function LearnBase.getobs(A::AbstractArray{<:Any, N}, idx; obsdim = default_obsdim(A)) where N
-    (obsdim > N) && throw(BoundsError(A, (ntuple(k -> Colon(), obsdim - 1)..., idx)))
-    I = Base.setindex(map(Base.Slice, axes(A)), idx, obsdim)
+    od = isnothing(obsdim) ? default_obsdim(A) : obsdim
+    (od > N) && throw(BoundsError(A, (ntuple(k -> Colon(), od - 1)..., idx)))
+    I = Base.setindex(map(Base.Slice, axes(A)), idx, od)
     return A[I...]
 end
 LearnBase.getobs(A::AbstractArray{<:Any, 0}, idx; obsdim) = A[idx]
@@ -153,9 +157,9 @@ end
 
 function _check_nobs(tup::Union{Tuple, NamedTuple}, obsdim)
     length(tup) == 0 && return
-    n1 = nobs(tup[1], obsdim)
+    n1 = nobs(tup[1]; obsdim = obsdim)
     for i=2:length(tup)
-        nobs(tup[i], obsdim) != n1 && _check_nobs_error()
+        nobs(tup[i]; obsdim = obsdim) != n1 && _check_nobs_error()
     end
 end
 
@@ -163,20 +167,19 @@ function _check_nobs(tup::Union{Tuple, NamedTuple}, obsdims::Union{Tuple, NamedT
     length(tup) == 0 && return
     length(tup) == length(obsdims) ||
         throw(DimensionMismatch("Number of elements in obsdim doesn't match data."))
-    n1 = nobs(tup[1], obsdims[1])
+    n1 = nobs(tup[1]; obsdim = obsdims[1])
     for i=2:length(tup)
-        nobs(tup[i], obsdims[i]) != n1 && _check_nobs_error()
+        nobs(tup[i]; obsdim = obsdims[i]) != n1 && _check_nobs_error()
     end
-end
-
-function LearnBase.nobs(tup::Union{Tuple, NamedTuple}, ::Nothing)::Int
-    _check_nobs(tup)
-    return length(tup) == 0 ? 0 : nobs(tup[1])
 end
 
 function LearnBase.nobs(tup::Union{Tuple, NamedTuple}; obsdim = default_obsdim(tup))::Int
     _check_nobs(tup, obsdim)
-    return length(tup) == 0 ? 0 : nobs(tup[1], obsdim[1])
+
+    # We don't force users to handle the obsdim
+    # keyword if not necessary.
+    fnobs = isnothing(obsdim) ? nobs : x -> nobs(x; obsdim = obsdim[1])
+    return length(tup) == 0 ? 0 : fnobs(tup[1])
 end
 
 LearnBase.getobs(tup::Union{Tuple, NamedTuple}, indices; obsdim = default_obsdim(tup)) =

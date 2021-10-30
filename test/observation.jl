@@ -43,7 +43,7 @@ using LearnBase: getobs, nobs, default_obsdim
 
     @testset "named tuple" begin
         X, Y = rand(2, 3), rand(3)
-        dataset = (x=X, y=Y) 
+        dataset = (x=X, y=Y)
         @test nobs(dataset) == 3
         if VERSION >= v"1.6"
             o = @inferred getobs(dataset, 2)

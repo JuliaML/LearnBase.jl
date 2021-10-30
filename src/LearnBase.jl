@@ -14,9 +14,6 @@ include("labels.jl")
 # LEARNING COSTS (e.g. loss & penalty)
 include("costs.jl")
 
-# LABELS
-include("labels.jl")
-
 # OTHER CONCEPTS
 include("other.jl")
 
