@@ -123,7 +123,7 @@ function LearnBase.nobs(A::AbstractArray; obsdim = default_obsdim(A))
     od = obsdim === nothing ? default_obsdim(A) : obsdim
     size(A, od)
 end
-LearnBase.nobs(A::AbstractArray{<:Any, 0}; obsdim) = 1
+LearnBase.nobs(A::AbstractArray{<:Any, 0}; obsdim = default_obsdim(A)) = 1
 
 function LearnBase.getobs(A::AbstractArray{<:Any, N}, idx; obsdim = default_obsdim(A)) where N
     od = obsdim === nothing ? default_obsdim(A) : obsdim
