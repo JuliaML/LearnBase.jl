@@ -17,6 +17,14 @@ using LearnBase: getobs, nobs, default_obsdim
         @test @inferred getobs(a, 2; obsdim = nothing) ≈ a[:,2]
     end
 
+    @testset "0-dim SubArray" begin
+        v = view([3], 1)
+        @test @inferred(nobs(v)) === 1
+        @test @inferred(getobs(v, 1)) === 3
+        @test_throws BoundsError getobs(v, 2)
+        @test_throws BoundsError getobs(v, 2:3)
+    end
+
     @testset "tuple" begin
         # A dataset with 3 observations, each with 2 input features
         X, Y = rand(2, 3), rand(3)
