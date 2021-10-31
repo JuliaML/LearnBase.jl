@@ -125,15 +125,15 @@ function LearnBase.nobs(A::AbstractArray; obsdim = default_obsdim(A))
 end
 LearnBase.nobs(A::AbstractArray{<:Any, 0}; obsdim = default_obsdim(A)) = 1
 
-function LearnBase.getobs(A::AbstractArray{<:Any, N}, idx; obsdim = default_obsdim(A)) where N
+function getobs(A::AbstractArray{<:Any, N}, idx; obsdim = default_obsdim(A)) where N
     od = obsdim === nothing ? default_obsdim(A) : obsdim
     (od > N) && throw(BoundsError(A, (ntuple(k -> Colon(), od - 1)..., idx)))
     I = Base.setindex(map(Base.Slice, axes(A)), idx, od)
     return A[I...]
 end
-LearnBase.getobs(A::AbstractArray{<:Any, 0}, idx; obsdim = default_obsdim(A)) = A[idx]
+getobs(A::AbstractArray{<:Any, 0}, idx; obsdim = default_obsdim(A)) = A[idx]
 
-function LearnBase.getobs!(buffer, A::AbstractArray, idx; obsdim = default_obsdim(A))
+function getobs!(buffer, A::AbstractArray, idx; obsdim = default_obsdim(A))
     (obsdim > ndims(A)) && throw(BoundsError(A, (ntuple(k -> Colon(), obsdim - 1)..., idx)))
     I = Base.setindex(map(Base.Slice, axes(A)), idx, obsdim)
     buffer .= A[I...]
@@ -182,7 +182,7 @@ function LearnBase.nobs(tup::Union{Tuple, NamedTuple}; obsdim = default_obsdim(t
     return length(tup) == 0 ? 0 : fnobs(tup[1])
 end
 
-LearnBase.getobs(tup::Union{Tuple, NamedTuple}, indices; obsdim = default_obsdim(tup)) =
+getobs(tup::Union{Tuple, NamedTuple}, indices; obsdim = default_obsdim(tup)) =
     _getobs(tup, indices, obsdim)
 
 function _getobs(tup::Union{Tuple, NamedTuple}, indices, obsdims::Union{Tuple, NamedTuple})
@@ -201,7 +201,7 @@ function _getobs(tup::Union{Tuple, NamedTuple}, indices, obsdim)
     end
 end
 
-LearnBase.getobs!(buffers::Union{Tuple, NamedTuple}, tup::Union{Tuple, NamedTuple}, indices;
+getobs!(buffers::Union{Tuple, NamedTuple}, tup::Union{Tuple, NamedTuple}, indices;
                   obsdim = default_obsdim(tup)) = 
     _getobs!(buffers, tup, indices, obsdim)
 

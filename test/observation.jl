@@ -37,7 +37,6 @@ using LearnBase: getobs, nobs, default_obsdim, getobs!
             yv = view(y,:)
             XX = rand(20,30,150)
             # interpreted as idx
-            @test_throws Exception getobs!(Xbuf, X)
             @test_throws Exception getobs!(Xbuf, X; obsdim = 1)
             # obsdim not defined without some idx
             @test_throws MethodError getobs!(Xbuf, X)
@@ -50,20 +49,13 @@ using LearnBase: getobs, nobs, default_obsdim, getobs!
             @test_throws BoundsError getobs!(Xbuf, X, 151; obsdim = 2)
             @test_throws BoundsError getobs!(Xbuf, X, 151; obsdim = 1)
             @test_throws BoundsError getobs!(Xbuf, X, 5; obsdim = 1)
-            # @test @inferred(getobs!(Xbuf, X)) === Xbuf
-            # @test Xbuf == X
-            # @test all(getobs!(similar(Xv), Xv) .== X)
-            # @test all(getobs!(similar(yv), yv) .== y)
-            # @test @inferred(getobs!(similar(XX), XX))   == XX
-            # @test @inferred(getobs!(similar(XXX), XXX)) == XXX
-            # @test @inferred(getobs!(similar(y), y))     == y
-            # xbuf1 = zeros(4)
-            # xbuf2 = zeros(4)
-            # @test @inferred(getobs!(xbuf1, X, 45)) == getobs!(xbuf2, X', 45, obsdim = 1)
-            # Xbuf1 = zeros(4,8)
-            # Xbuf2 = zeros(8,4)
-            # @test @inferred(getobs!(Xbuf1, X, 3:10)) == getobs!(Xbuf2, X', 3:10, obsdim = 1)'
-            # # obsdim = 2
+            xbuf1 = zeros(4)
+            xbuf2 = zeros(4)
+            @test @inferred(getobs!(xbuf1, X, 45)) == getobs!(xbuf2, X', 45, obsdim = 1)
+            Xbuf1 = zeros(4,8)
+            Xbuf2 = zeros(8,4)
+            @test @inferred(getobs!(Xbuf1, X, 3:10)) == getobs!(Xbuf2, X', 3:10, obsdim = 1)'
+            # obsdim = 2
             Xbuf1 = zeros(20,150)
             @test @inferred(getobs!(Xbuf1, XX, 5; obsdim = 2)) == XX[:,5,:]
             @test getobs!(Xbuf1, XX, 11, obsdim = 2) == XX[:,11,:]
