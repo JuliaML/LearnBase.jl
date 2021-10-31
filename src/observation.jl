@@ -133,8 +133,8 @@ function LearnBase.getobs(A::AbstractArray{<:Any, N}, idx; obsdim = default_obsd
 end
 LearnBase.getobs(A::AbstractArray{<:Any, 0}, idx; obsdim = default_obsdim(A)) = A[idx]
 
-function LearnBase.getobs!(buffer, A::AbstractArray, idx; obsdim = default_obsdim(obsdim))
-    (obsdim > N) && throw(BoundsError(A, (ntuple(k -> Colon(), obsdim - 1)..., idx)))
+function LearnBase.getobs!(buffer, A::AbstractArray, idx; obsdim = default_obsdim(A))
+    (obsdim > ndims(A)) && throw(BoundsError(A, (ntuple(k -> Colon(), obsdim - 1)..., idx)))
     I = Base.setindex(map(Base.Slice, axes(A)), idx, obsdim)
     buffer .= A[I...]
 
