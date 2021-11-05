@@ -133,7 +133,7 @@ function getobs(A::AbstractArray{<:Any, N}, idx; obsdim = default_obsdim(A)) whe
 end
 getobs(A::AbstractArray{<:Any, 0}, idx; obsdim = default_obsdim(A)) = A[idx]
 
-function getobs!(buffer, A::AbstractArray, idx; obsdim = default_obsdim(A))
+function getobs!(buffer::AbstractArray, A::AbstractArray, idx; obsdim = default_obsdim(A))
     (obsdim > ndims(A)) && throw(BoundsError(A, (ntuple(k -> Colon(), obsdim - 1)..., idx)))
     I = Base.setindex(map(Base.Slice, axes(A)), idx, obsdim)
     buffer .= A[I...]
