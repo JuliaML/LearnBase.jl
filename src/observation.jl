@@ -106,7 +106,7 @@ abstract type AbstractDataContainer end
 
 Base.getindex(x::AbstractDataContainer, i) = getobs(x, i; obsdim = default_obsdim(x))
 Base.iterate(x::AbstractDataContainer, state = 1) =
-    getobs(x, state; obsdim = default_obsdim(x)), state + 1
+    state > nobs(x) ? nothing : (getobs(x, state; obsdim = default_obsdim(x)), state + 1)
 
 # --------------------------------------------------------------------
 

@@ -343,3 +343,15 @@ vars = (X, Xv, yv, XX, XXX, y)
     #     @test o["Y"] == Y[1:2]
     # end
 end
+
+@testset "AbstractDataContainer" begin
+    struct TestContainer{T} <: LearnBase.AbstractDataContainer
+        data::T
+    end
+    LearnBase.nobs(c::TestContainer; obsdim = LearnBase.default_obsdim(c)) = length(c.data)
+    Base.length(c::TestContainer) = LearnBase.nobs(c)
+    LearnBase.getobs(c::TestContainer, idx; obsdim = LearnBase.default_obsdim(c)) = c.data[idx]
+
+    cont = TestContainer([2,4,6,8,10])
+    @test collect(cont) == [2,4,6,8,10]
+end
