@@ -233,14 +233,15 @@ vars = (X, Xv, yv, XX, XXX, y)
         end
 
         @testset "SparseArray" begin
+            ALLOWED_T = Union{Float64, SparseVector{Float64, Int64}}
             # Sparse Arrays opt-out of buffer usage
-            @test @inferred(getobs!(nothing, Xs, 1)) == getobs(Xs, 1)
-            @test @inferred(getobs!(nothing, Xs, 5:10)) == getobs(Xs, 5:10)
-            @test @inferred(getobs!(nothing, Xs, 2; obsdim=1)) == getobs(Xs, 2, obsdim=1)
+            @test @inferred(ALLOWED_T, getobs!(nothing, Xs, 1)) == getobs(Xs, 1)
+            @test @inferred(ALLOWED_T, getobs!(nothing, Xs, 5:10)) == getobs(Xs, 5:10)
+            @test @inferred(ALLOWED_T, getobs!(nothing, Xs, 2; obsdim=1)) == getobs(Xs, 2, obsdim=1)
             @test getobs!(nothing, Xs, 2, obsdim = 1) == getobs(Xs, 2, obsdim=1)
-            @test @inferred(getobs!(nothing, ys, 1)) === getobs(ys, 1)
-            @test @inferred(getobs!(nothing, ys, 5:10)) == getobs(ys, 5:10)
-            @test @inferred(getobs!(nothing, ys, 5:10; obsdim=1)) == getobs(ys, 5:10)
+            @test @inferred(ALLOWED_T, getobs!(nothing, ys, 1)) === getobs(ys, 1)
+            @test @inferred(ALLOWED_T, getobs!(nothing, ys, 5:10)) == getobs(ys, 5:10)
+            @test @inferred(ALLOWED_T, getobs!(nothing, ys, 5:10; obsdim=1)) == getobs(ys, 5:10)
             @test getobs!(nothing, ys, 5:10, obsdim=1) == getobs(ys, 5:10)
         end
     
@@ -286,10 +287,11 @@ vars = (X, Xv, yv, XX, XXX, y)
     @testset "tuple" begin
         # A dataset with 3 observations, each with 2 input features
         X, Y = rand(2, 3), rand(3)
-        dataset = (X, Y) 
+        dataset = (X, Y)
+        ALLOWED_T = Tuple{Union{Float64, Vector{Float64}}, Float64}
         @test nobs(dataset) == 3
         if VERSION >= v"1.6"
-            o = @inferred getobs(dataset, 2)
+            o = @inferred ALLOWED_T getobs(dataset, 2)
         else
             o = getobs(dataset, 2)
         end
@@ -297,7 +299,7 @@ vars = (X, Xv, yv, XX, XXX, y)
         @test o[2] == Y[2]
 
         if VERSION >= v"1.6"
-            o = @inferred getobs(dataset, 1:2)
+            o = @inferred ALLOWED_T getobs(dataset, 1:2)
         else
             o = getobs(dataset, 1:2)
         end
@@ -310,9 +312,10 @@ vars = (X, Xv, yv, XX, XXX, y)
     @testset "named tuple" begin
         X, Y = rand(2, 3), rand(3)
         dataset = (x=X, y=Y)
+        ALLOWED_T = @NamedTuple{x::Union{Float64, Vector{Float64}}, y::Float64}
         @test nobs(dataset) == 3
         if VERSION >= v"1.6"
-            o = @inferred getobs(dataset, 2)
+            o = @inferred ALLOWED_T getobs(dataset, 2)
         else
             o = getobs(dataset, 2)
         end
@@ -320,7 +323,7 @@ vars = (X, Xv, yv, XX, XXX, y)
         @test o.y == Y[2]
 
         if VERSION >= v"1.6"
-            o = @inferred getobs(dataset, 1:2)
+            o = @inferred ALLOWED_T getobs(dataset, 1:2)
         else
             o = getobs(dataset, 1:2)
         end
