@@ -238,7 +238,7 @@ function labelfreq end
 """
     labelfreq!(dict, obj) -> Dict
 
-updates the given label-frequency-map `dict` with the absolute
+Updates the given label-frequency-map `dict` with the absolute
 frequencies for each label in `obj`
 
 ```juliarepl
