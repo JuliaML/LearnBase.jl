@@ -312,9 +312,9 @@ vars = (X, Xv, yv, XX, XXX, y)
     @testset "named tuple" begin
         X, Y = rand(2, 3), rand(3)
         dataset = (x=X, y=Y)
-        ALLOWED_T = @NamedTuple{x::Union{Float64, Vector{Float64}}, y::Float64}
         @test nobs(dataset) == 3
         if VERSION >= v"1.6"
+            ALLOWED_T = @NamedTuple{x::Union{Float64, Vector{Float64}}, y::Float64}
             o = @inferred ALLOWED_T getobs(dataset, 2)
         else
             o = getobs(dataset, 2)
@@ -323,6 +323,7 @@ vars = (X, Xv, yv, XX, XXX, y)
         @test o.y == Y[2]
 
         if VERSION >= v"1.6"
+            ALLOWED_T = @NamedTuple{x::Union{Float64, Vector{Float64}}, y::Float64}
             o = @inferred ALLOWED_T getobs(dataset, 1:2)
         else
             o = getobs(dataset, 1:2)
