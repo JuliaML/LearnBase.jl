@@ -104,9 +104,11 @@ function targets end
 
 abstract type AbstractDataContainer end
 
-Base.getindex(x::AbstractDataContainer, i) = getobs(x, i; obsdim = default_obsdim(x))
+Base.getindex(x::AbstractDataContainer, i) = getobs(x, i)
 Base.iterate(x::AbstractDataContainer, state = 1) =
-    state > nobs(x) ? nothing : (getobs(x, state; obsdim = default_obsdim(x)), state + 1)
+    (state > nobs(x)) ? nothing : (getobs(x, state), state + 1)
+Base.length(x::AbstractDataContainer) = nobs(x)
+Base.lastindex(x::AbstractDataContainer) = nobs(x)
 
 # --------------------------------------------------------------------
 

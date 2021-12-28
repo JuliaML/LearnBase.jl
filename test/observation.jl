@@ -357,4 +357,6 @@ end
 
     cont = TestContainer([2,4,6,8,10])
     @test collect(cont) == [2,4,6,8,10]
+    @test length(cont) == 5
+    @test cont[end] == 10
 end
