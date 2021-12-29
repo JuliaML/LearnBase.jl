@@ -121,7 +121,3 @@ If it makes sense for the type of `data`, `obsdim` can be used
 to disptach on which dimension of `data` denotes the observations.
 """
 function datasubset end
-
-# todeprecate
-function target end
-function gettarget end
