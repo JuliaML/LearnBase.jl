@@ -1,7 +1,5 @@
 module LearnBase
 
-using StatsBase: nobs
-
 # AGGREGATION MODES
 include("aggmode.jl")
 
@@ -9,6 +7,7 @@ include("aggmode.jl")
 include("iteration.jl")
 
 # OBSERVATION DIMENSIONS
+export default_obsdim, getobs, getobs!
 include("observation.jl")
 
 # LEARNING COSTS (e.g. loss & penalty)
