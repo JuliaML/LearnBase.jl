@@ -4,8 +4,7 @@ module LearnBase
 include("aggmode.jl")
 
 # OBSERVATION DIMENSIONS
-export default_obsdim, getobs, getobs!
-include("observation.jl")
+include("obsdim.jl")
 
 # LEARNING COSTS (e.g. loss & penalty)
 include("costs.jl")
