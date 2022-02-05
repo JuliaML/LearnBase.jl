@@ -11,3 +11,6 @@ This package embodies a community effort to provide common types and function-de
 See [src/LearnBase.jl](https://github.com/JuliaML/LearnBase.jl/blob/master/src/LearnBase.jl) for more information
 
 
+## WARNING
+
+This package has been discontinued. Most functionalities have been moved [MLUtils.jl](https://github.com/JuliaML/MLUtils.jl).
