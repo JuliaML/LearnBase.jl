@@ -1,6 +1,6 @@
 name = "LearnBase"
 uuid = "7f8f8fb0-2700-5f03-b4bd-41f8cfc144b6"
-version = "0.6.0"
+version = "0.6.1"
 
 [compat]
 julia = "1.6"
