@@ -76,6 +76,8 @@
         end
         @test LearnBase.randtype(s) == Float64
         # @show s LearnBase.randtype(s)
+        @test display(s) === nothing  
+        println()  
     end
     let s = LearnBase.IntervalSet(-1,1.0)
         @test typeof(s) == LearnBase.IntervalSet{Float64}
@@ -83,6 +85,8 @@
         @test 1 in s
         # @show s LearnBase.randtype(s)
         @test length(s) == 1
+        @test display(s) === nothing 
+        println()
     end
 
     # IntervalSet{Vector}
@@ -96,6 +100,8 @@
         @test !([-1.5,0] in s)
         @test !([0,2] in s)
         @test length(s) == 2
+        @test display(s) === nothing 
+        println()
     end
 
     # DiscreteSet
@@ -122,12 +128,16 @@
         @test LearnBase.randtype(s) == Int
         @test length(s) == 2
         @test s[1] == -1
+        @test display(s) === nothing 
+        println()
     end
     let s = LearnBase.DiscreteSet([-1,1.0])
         @test typeof(s) == LearnBase.DiscreteSet{Vector{Float64}}
         @test typeof(s) <: AbstractSet
         @test typeof(rand(s)) == Float64
         @test typeof(rand(s, 2)) == Vector{Float64}
+        @test display(s) === nothing 
+        println()
     end
 
     # TupleSet
@@ -152,6 +162,8 @@
             tot += length(x)
         end
         @test length(s) == tot
+        @test display(s) === nothing 
+        println()
     end
 
     # arrays of sets

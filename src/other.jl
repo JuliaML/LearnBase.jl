@@ -239,6 +239,12 @@ Base.rand(s::IntervalSet{T}) where T <: AbstractVector = Float64[rand() * (s.hi[
 Base.in(x::AbstractVector, s::IntervalSet{T}) where T <: AbstractVector = all(i -> s.lo[i] <= x[i] <= s.hi[i], 1:length(s))
 Base.length(s::IntervalSet{T}) where T <: AbstractVector = length(s.lo)
 
+# display in REPL and IJulia
+function Base.show(io::IO, ::MIME"text/plain", s::IntervalSet)
+    println(io, typeof(s), " with endpoints:")
+    println(io, " lo   = ", s.lo)
+    print(io, " high = ", s.hi) 
+end
 
 "Set of discrete items"
 struct DiscreteSet{T<:AbstractArray} <: AbstractSet{T}
@@ -250,7 +256,10 @@ Base.in(x, s::DiscreteSet) = x in s.items
 Base.length(s::DiscreteSet) = length(s.items)
 Base.getindex(s::DiscreteSet, i::Int) = s.items[i]
 Base.:(==)(s1::DiscreteSet, s2::DiscreteSet) = s1.items == s2.items
-
+function Base.show(io::IO, ::MIME"text/plain", s::DiscreteSet)
+    println(io, typeof(s), " with items:")
+    print(io, " ", s.items)
+end
 
 # operations on arrays of sets
 randtype(sets::AbstractArray{S,N}) where {S <: AbstractSet, N} = Array{promote_type(map(randtype, sets)...), N}
@@ -292,6 +301,13 @@ Base.iterate(sets::TupleSet, i) = iterate(sets.sets, i)
 randtype(sets::TupleSet) = randtype(sets, Vector)
 Base.rand(sets::TupleSet, dims::Integer...) = rand(sets, Vector, dims...)
 Base.in(x, sets::TupleSet) = all(map(in, x, sets.sets))
+function Base.show(io::IO, ::MIME"text/plain", s::TupleSet)
+    print(io, typeof(s), " composed of $(length(s.sets)) sets:")
+    for set in s.sets
+        println(io)
+        show(io, "text/plain", set)
+    end
+end
 
 "Returns an AbstractSet representing valid input values"
 function inputdomain end
